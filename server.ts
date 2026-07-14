@@ -443,7 +443,7 @@ STRICT CONCISENESS & TOKEN-SAVING RULES:
 
     let response;
     let lastError: any = null;
-    const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash"];
+    const modelsToTry = ["gemini-2.0-flash", "gemini-2.0-flash-lite"];
 
     for (const modelName of modelsToTry) {
       let attempts = 0;
