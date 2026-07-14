@@ -425,14 +425,46 @@ STRICT CONCISENESS & TOKEN-SAVING RULES:
       }
     }
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: collapsedContents,
-      config: {
-        systemInstruction,
-        temperature: 0.6,
+    let response;
+    let lastError: any = null;
+    const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash"];
+
+    for (const modelName of modelsToTry) {
+      let attempts = 0;
+      while (attempts < 2) {
+        try {
+          response = await ai.models.generateContent({
+            model: modelName,
+            contents: collapsedContents,
+            config: {
+              systemInstruction,
+              temperature: 0.6,
+            }
+          });
+          break; // Succeeded! Break out of the retry loop
+        } catch (err: any) {
+          lastError = err;
+          attempts++;
+          // If it's a 503, 429, or general unavailable error, wait and retry
+          const isTransient = err.status === 503 || err.status === 429 || 
+                            (err.message && (err.message.includes("503") || err.message.includes("UNAVAILABLE") || err.message.includes("high demand")));
+          if (isTransient) {
+            console.warn(`Gemini API returned transient error for ${modelName} (attempt ${attempts}): ${err.message}. Retrying in 1s...`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } else {
+            // If it is another type of error (e.g., authentication, invalid key), break to try the next model or fail
+            break;
+          }
+        }
       }
-    });
+      if (response) {
+        break; // Got a response, don't try the fallback model
+      }
+    }
+
+    if (!response) {
+      throw lastError || new Error("Failed to generate response after trying multiple models.");
+    }
 
     res.json({ text: response.text });
   } catch (error: any) {
