@@ -443,7 +443,7 @@ STRICT CONCISENESS & TOKEN-SAVING RULES:
 
     let response;
     let lastError: any = null;
-    const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash"];
+    const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash"];
 
     for (const modelName of modelsToTry) {
       let attempts = 0;
@@ -468,8 +468,8 @@ STRICT CONCISENESS & TOKEN-SAVING RULES:
             console.warn(`Gemini API returned transient error for ${modelName} (attempt ${attempts}): ${err.message}. Retrying in 1s...`);
             await new Promise(resolve => setTimeout(resolve, 1000));
           } else {
-            // If it is another type of error (e.g., authentication, invalid key), break to try the next model or fail
-            break;
+            // For non-transient errors (like invalid key, invalid arg), throw immediately to the caller
+            throw err;
           }
         }
       }
