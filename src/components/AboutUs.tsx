@@ -90,7 +90,7 @@ export default function AboutUs({ onPageChange }: AboutUsProps) {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <span className="font-mono text-xs text-zinc-400 uppercase font-bold tracking-widest block">Co-Founder & Lead Engineer</span>
+                <span className="font-mono text-xs text-zinc-400 uppercase font-bold tracking-widest block">Founder & Lead Engineer</span>
                 <h3 className="font-display text-3xl font-black text-slate-950">Ujjwal Tiwari</h3>
               </div>
               <div className="bg-yellow-300 border-2 border-black p-2.5 rounded-xl shadow-[2px_2px_0px_#000000] rotate-3 shrink-0">
@@ -128,7 +128,7 @@ export default function AboutUs({ onPageChange }: AboutUsProps) {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <span className="font-mono text-xs text-zinc-400 uppercase font-bold tracking-widest block">Co-Founder & Systems Architect</span>
+                <span className="font-mono text-xs text-zinc-400 uppercase font-bold tracking-widest block">Co-founder & Architect Engineer</span>
                 <h3 className="font-display text-3xl font-black text-slate-950">Raj Dubey</h3>
               </div>
               <div className="bg-blue-300 border-2 border-black p-2.5 rounded-xl shadow-[2px_2px_0px_#000000] -rotate-3 shrink-0">
@@ -137,24 +137,27 @@ export default function AboutUs({ onPageChange }: AboutUsProps) {
             </div>
 
             <div className="border-l-4 border-yellow-400 pl-4 italic text-xs font-semibold text-zinc-500 leading-relaxed">
-              "We created WEBXcel to break down barriers. Small businesses deserve elite systems that unlock their full, maximum commercial potential."
+              "Driven by purpose. Powered by code."
             </div>
 
             <div className="space-y-4 text-xs font-semibold text-zinc-600 leading-relaxed">
               <p>
-                Great technology shouldn’t be a luxury reserved only for conglomerates with six-figure IT budgets. We witnessed brilliant small enterprises and neighborhood ventures struggle because they lacked access to robust web software, clean CRM tracking, and automated client outreach.
+                I’m Raj Dubey, CEO and Co-Founder of WEBXcel. I’m passionate about building technology that helps businesses grow. For me, web development or other digital services aren't just about creating attractive websites and tools—it’s about designing fast, secure, and scalable digital experiences that deliver real results. Every line of code I write is driven by innovation, precision, and the desire to create lasting value.
               </p>
               <p>
-                As a backend-focused developer and systems expert, my goal with WEBXcel was to build the rock-solid foundations, secure databases, and direct API logic that keep business running flawlessly. By engineering customized, ultra-secure workflows, we eliminate the need for bloated SaaS subscriptions and expensive retainers.
+                WEBXcel represents my vision of what a modern web agency should be: transparent, innovative, and committed to quality. Every project is built with attention to detail, clean engineering, and a focus on long-term success rather than quick fixes.
               </p>
               <p>
-                We believe in complete transparency, architectural honesty, and flawless execution. WEBXcel is our commitment to proving that raw talent, relentless problem-solving, and clean, hand-coded systems can outperform expensive, standardized agencies every single day.
+                I believe every business, regardless of its size, deserves access to world-class technology. That’s why we’re constantly pushing ourselves to improve, learn, and deliver solutions that stand out in both design and performance.
+              </p>
+              <p>
+                My mindset has always been to aim higher than yesterday, embrace every challenge, and never settle for average. I want WEBXcel to become the first name businesses think of when they need exceptional web development and digital solutions.
               </p>
             </div>
           </div>
 
           <div className="pt-6 border-t border-zinc-100 flex items-center justify-between">
-            <span className="font-mono text-[9px] uppercase font-black text-zinc-400">Backend Systems Architect</span>
+            <span className="font-mono text-[9px] uppercase font-black text-zinc-400">Architect Engineer</span>
             <div className="inline-flex items-center space-x-1.5 bg-yellow-300 text-black text-[10px] font-mono uppercase font-black px-3 py-1 rounded-md border-2 border-black">
               <span>Backend Core</span>
             </div>
