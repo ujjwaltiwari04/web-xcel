@@ -5,6 +5,7 @@ import {
   ArrowRight, X, Sparkles, TrendingUp, HelpCircle 
 } from "lucide-react";
 import { Currency, formatCurrencyValue } from "../utils/currency";
+import WhyUs from "./WhyUs";
 
 interface ServicesProps {
   onServiceSelect: (serviceName: string) => void;
@@ -364,6 +365,9 @@ export default function Services({ onServiceSelect, currency }: ServicesProps) {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Why Us section integrated at the bottom of Services */}
+      <WhyUs />
 
     </section>
   );

@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { Check, HelpCircle, AlertCircle, X, ShieldCheck } from "lucide-react";
 import { Currency, formatCurrencyValue } from "../utils/currency";
+import WhyUs from "./WhyUs";
 
 interface PricingProps {
   onPlanSelect: (planName: string, amount: string) => void;
@@ -68,7 +69,8 @@ export default function Pricing({ onPlanSelect, currency }: PricingProps) {
   ];
 
   return (
-    <section id="pricing" className="py-24 bg-transparent border-b-4 border-black relative">
+    <>
+      <section id="pricing" className="py-24 bg-transparent border-b-4 border-black relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
@@ -201,6 +203,8 @@ export default function Pricing({ onPlanSelect, currency }: PricingProps) {
         </div>
 
       </div>
-    </section>
+      </section>
+      <WhyUs />
+    </>
   );
 }

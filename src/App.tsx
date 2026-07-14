@@ -13,6 +13,7 @@ import AboutUs from "./components/AboutUs";
 import Footer from "./components/Footer";
 import LeadPopup from "./components/LeadPopup";
 import { Currency } from "./utils/currency";
+import WhyUs from "./components/WhyUs";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home");
@@ -122,6 +123,8 @@ export default function App() {
                   <Hero onCtaclick={handlePageChange} currency={currency} />
                   {/* Newly extended dynamic content for Homepage */}
                   <HomeExtendedContent onAction={handlePageChange} />
+                  {/* Refined Why Us Value Proposition Section */}
+                  <WhyUs />
                 </>
               )}
 
