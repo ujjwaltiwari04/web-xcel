@@ -7,7 +7,7 @@ export default function HomeExtendedContent({ onAction }: { onAction: (pageId: s
   const [terminalLines, setTerminalLines] = useState<string[]>([
     "Initializing WebXcel Core Engine...",
     "Server established at 0.0.0.0:3000.",
-    "Gemini LLM model: 'gemini-3.5-flash' fully integrated.",
+    "Gemini LLM model: 'gemini-2.5-flash' fully integrated.",
     "Database connection status: active.",
   ]);
 
