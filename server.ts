@@ -331,6 +331,22 @@ app.post("/api/leads", async (req, res) => {
   }
 });
 
+// Diagnostic endpoint to list available models for the configured API key
+app.get("/api/models", async (req, res) => {
+  try {
+    const ai = getGeminiClient();
+    if (!ai) {
+      res.json({ error: "Gemini client not initialized. GEMINI_API_KEY might be missing." });
+      return;
+    }
+    const response = await ai.models.list();
+    res.json(response);
+  } catch (error: any) {
+    console.error("Error listing models:", error);
+    res.status(500).json({ error: "Failed to list models.", details: error.message });
+  }
+});
+
 // Interactive AI Consultant Chat Endpoint
 app.post("/api/chat", async (req, res) => {
   try {
