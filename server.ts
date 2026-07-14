@@ -334,16 +334,33 @@ app.post("/api/leads", async (req, res) => {
 // Diagnostic endpoint to list available models for the configured API key
 app.get("/api/models", async (req, res) => {
   try {
+    const rawKey = process.env.GEMINI_API_KEY || "";
+    const keyInfo = rawKey 
+      ? {
+          exists: true,
+          length: rawKey.length,
+          masked: `${rawKey.substring(0, 8)}...${rawKey.substring(rawKey.length - 8)}`
+        }
+      : { exists: false };
+
     const ai = getGeminiClient();
     if (!ai) {
-      res.json({ error: "Gemini client not initialized. GEMINI_API_KEY might be missing." });
+      res.json({ error: "Gemini client not initialized. GEMINI_API_KEY might be missing.", keyInfo });
       return;
     }
     const response = await ai.models.list();
-    res.json(response);
+    res.json({ keyInfo, models: response });
   } catch (error: any) {
     console.error("Error listing models:", error);
-    res.status(500).json({ error: "Failed to list models.", details: error.message });
+    const rawKey = process.env.GEMINI_API_KEY || "";
+    const keyInfo = rawKey 
+      ? {
+          exists: true,
+          length: rawKey.length,
+          masked: `${rawKey.substring(0, 8)}...${rawKey.substring(rawKey.length - 8)}`
+        }
+      : { exists: false };
+    res.status(500).json({ error: "Failed to list models.", details: error.message, keyInfo });
   }
 });
 
