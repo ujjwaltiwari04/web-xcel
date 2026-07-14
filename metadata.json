@@ -1,0 +1,6 @@
+{
+  "name": "WEBXcel",
+  "description": "Premium Business Website Development, Tailored CRM, AI Agents, Chatbots, Call Dialers, and Automated Outreach Solutions",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

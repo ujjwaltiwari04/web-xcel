@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Comic+Neue:wght@400;700&family=Bangers&family=Permanent+Marker&family=Architects+Daughter&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-comic: "Comic Neue", sans-serif;
+  --font-sfx: "Bangers", sans-serif;
+  --font-marker: "Permanent Marker", cursive;
+  --font-sketch: "Architects Daughter", cursive;
+  
+  --shadow-brutal-sm: 4px 4px 0px #000000;
+  --shadow-brutal-md: 8px 8px 0px #1A1A1A;
+  --shadow-brutal-blue: 8px 8px 0px #3B82F6;
+  --shadow-brutal-yellow: 8px 8px 0px #FACC15;
+}
+
+@layer base {
+  body {
+    @apply bg-[#FFFBEB] text-slate-900 antialiased font-sans;
+  }
+}
+
+/* Halftone dots patterns typical of comic printed ink */
+.bg-halftone {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.12) 18%, transparent 18%);
+  background-size: 12px 12px;
+}
+
+.bg-halftone-yellow {
+  background-image: radial-gradient(rgba(234, 179, 8, 0.3) 22%, transparent 22%);
+  background-size: 10px 10px;
+}
+
+.bg-halftone-emerald {
+  background-image: radial-gradient(rgba(16, 185, 129, 0.25) 20%, transparent 20%);
+  background-size: 10px 10px;
+}
+
+/* Page action lines or comic panels */
+.comic-border-double {
+  border: 4px double #000000;
+}
+
+.comic-banner-skew {
+  transform: skew(-2deg) rotate(-0.5deg);
+}
+
+.comic-bubble-tip::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 24px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 12px 10px 0 0;
+  border-color: #ffffff transparent transparent transparent;
+  display: block;
+}
+
+.comic-bubble-tip-border::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 22px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 16px 13px 0 0;
+  border-color: #000000 transparent transparent transparent;
+  display: block;
+}
+
+/* Custom modern 3D depth shadows and interactive animation support */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+.animate-float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
