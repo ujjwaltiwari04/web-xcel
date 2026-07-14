@@ -111,7 +111,9 @@ export default function AIConsultant() {
     } finally {
       setIsGenerating(false);
     }
-  };  return (
+  };
+
+  return (
     <section id="consultant" className="py-24 bg-transparent border-b-4 border-black relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch">
@@ -125,9 +127,9 @@ export default function AIConsultant() {
               </span>
             </div>
 
-            <h2 className="font-sfx text-4xl sm:text-5xl font-normal tracking-normal text-slate-950 uppercase leading-none">
+            <h1 className="font-sfx text-4xl sm:text-5xl font-normal tracking-normal text-slate-950 uppercase leading-none">
               Real-time Conversation Engine!
-            </h2>
+            </h1>
 
             <p className="text-zinc-600 text-sm font-bold leading-relaxed">
               This interactive virtual assistant isn't a mock template; it is a fully functional conversational AI powered by advanced LLMs, connected securely to our Node.js server.

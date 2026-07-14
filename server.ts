@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import fs from "fs/promises";
 
 dotenv.config();
 
@@ -150,7 +151,7 @@ app.post("/api/sheets/config", async (req, res) => {
     const activeToken = accessToken || existingToken;
     if (finalSpreadsheetId && activeToken) {
       try {
-        const testUrl = `https://sheets.googleapis.com/v4/spreadsheets/${finalSpreadsheetId}/values/A1:F1?valueInputOption=USER_ENTERED`;
+        const testUrl = `https://sheets.googleapis.com/v4/spreadsheets/${finalSpreadsheetId}/values/A1:H1?valueInputOption=USER_ENTERED`;
         await fetch(testUrl, {
           method: "PUT",
           headers: {
@@ -159,7 +160,7 @@ app.post("/api/sheets/config", async (req, res) => {
           },
           body: JSON.stringify({
             values: [
-              ["Timestamp", "Client Name", "Contact (Phone/WhatsApp)", "Email Address", "Location / Scope", "Requested Services / Quote Info"]
+              ["Timestamp", "Client Name", "Location / Scope", "Contact (Phone/WhatsApp)", "Email Address", "Requested Services / Quote Info", "Cart ITEMS", "Status"]
             ]
           })
         });
@@ -344,15 +345,25 @@ app.post("/api/chat", async (req, res) => {
 
     // If Gemini key is not configured, return a friendly mock consultant message
     if (!ai) {
-      const lastMsg = messages[messages.length - 1]?.content || "";
+      const lastMsg = (messages[messages.length - 1]?.content || "").toLowerCase();
       let mockReply = "Hello! I am XcelBot, your WebXcel AI Consultant. I'd love to help you build your custom Business Website, CRM, or AI Chatbot! To unlock my fully dynamic consulting capabilities, please add a valid API key in the Secrets panel.";
       
-      if (lastMsg.toLowerCase().includes("website") || lastMsg.toLowerCase().includes("pricing")) {
-        mockReply = "Our ultra-premium Business Websites with custom 3D elements start at just ₹5,999 ($75), featuring modern responsive layouts, lightning-fast performance, and a clear call-to-action to convert visitors into customers. Would you like a customized proposal?";
-      } else if (lastMsg.toLowerCase().includes("crm") || lastMsg.toLowerCase().includes("lead")) {
-        mockReply = "Our Tailored CRM & Lead management solutions start at ₹19,999. They stream your sales directly, manage custom pipelines, and include real-time alerts. Would you like to hear about how we integrate automated SMS/Email workflows?";
-      } else if (lastMsg.toLowerCase().includes("agent") || lastMsg.toLowerCase().includes("bot")) {
-        mockReply = "AI Agents & Chatbots are our absolute specialty! Starting at ₹14,999, we build intelligent agents that run on your website 24/7 to capture and qualify leads. Shall we schedule a design call for your custom agent?";
+      if (lastMsg.includes("website") || lastMsg.includes("pricing") || lastMsg.includes("starter") || lastMsg.includes("presence")) {
+        mockReply = "Our ultra-premium Business Websites with custom 3D elements start at just ₹6,999 ($99), featuring modern responsive layouts, 100% hand-coded React/Tailwind (95+ PageSpeed score), and free domain setup support. Would you like a customized proposal?";
+      } else if (lastMsg.includes("crm") || lastMsg.includes("lead") || lastMsg.includes("pipeline")) {
+        mockReply = "Our Tailored CRM & Lead management solutions start at ₹14,999 ($185). They feature custom sales pipelines, visual history/forecast dashboards, role management, and real-time alerts. Shall we schedule a brief demo?";
+      } else if (lastMsg.includes("agent") || lastMsg.includes("bot") || lastMsg.includes("chat")) {
+        mockReply = "AI Agents & Chatbots are our absolute specialty! Starting at ₹14,999 ($185), we build intelligent agents trained on your business FAQs with bilingual support, WhatsApp Cloud API, and Telegram integrations. Would you like a custom chatbot demo?";
+      } else if (lastMsg.includes("dialer") || lastMsg.includes("outreach") || lastMsg.includes("call")) {
+        mockReply = "Our Call Dialer & Automated Outreach platform starts at ₹24,999 ($299). It integrates browser auto-dialing, voice broadcasting, Twilio gateways, and sequential email/SMS/WhatsApp campaigns. Shall we review a custom outreach flow?";
+      } else if (lastMsg.includes("video") || lastMsg.includes("editing") || lastMsg.includes("reel") || lastMsg.includes("short")) {
+        mockReply = "High-Impact Video Editing starts at ₹2,999 ($39) per edit. We craft professional vertical Reels/Shorts, corporate explainer videos, and social ads featuring custom grading, kinetic typography, and sound design. Do you have footage ready?";
+      } else if (lastMsg.includes("app") || lastMsg.includes("mobile") || lastMsg.includes("software") || lastMsg.includes("native") || lastMsg.includes("flutter")) {
+        mockReply = "Custom Software & Mobile App development starts at ₹34,999 ($429) using React Native or Flutter. We engineer cross-platform packages with cloud database sync (Postgres/Firestore), role control panels, and push alerts. What are your app features?";
+      } else if (lastMsg.includes("bundle") || lastMsg.includes("clinic") || lastMsg.includes("real estate") || lastMsg.includes("school") || lastMsg.includes("restaurant") || lastMsg.includes("gym") || lastMsg.includes("law")) {
+        mockReply = "We package specialized industry bundles starting at ₹14,999 to ₹29,999 ($185-$369). These combine custom website designs, intake CRM dashboards, calendars, and auto-reminders (e.g. Clinic, Real Estate, Gym, or School suites). Which industry are you in?";
+      } else if (lastMsg.includes("fiverr") || lastMsg.includes("upwork") || lastMsg.includes("freelance") || lastMsg.includes("commission") || lastMsg.includes("markup") || lastMsg.includes("middleman") || lastMsg.includes("direct")) {
+        mockReply = "By working directly with WEBXcel instead of freelance portals like Fiverr or Upwork, you save 20%+ in middleman commissions! We offer a 30-day post-launch revisions SLA, direct founder contact (WhatsApp/Calls with Ujjwal & Raj), and 100% hand-coded React platforms with full IP ownership handover. Shall we outline a direct proposal?";
       }
       
       res.json({ text: mockReply });
@@ -369,6 +380,8 @@ WEBXcel Official Services & Data (Trained Context):
 - Call Dialer & Automated Outreach: Starts at ₹24,999 ($315). Browser auto-dialer, voice broadcasting, sequential campaigns (WhatsApp/SMS/Email), Twilio gateway integration.
 - High-Impact Video Editing: Starts at ₹2,999 ($38). Vertical Reels/Shorts, professional grading, transitions, kinetic subtitles.
 - Software & Mobile App Development: Starts at ₹34,999 ($440). Cross-platform React Native or Flutter, offline sync databases (Firestore/PostgreSQL), push notifications.
+- Pre-packaged Industry Bundles: Starts at ₹14,999 to ₹29,999 ($185-$369). Clinic & Doctor Pack, Real Estate Growth, Restaurant & Cafe, School & Academy, Gym & Fitness Studio, Law Firm & Attorney, Manufacturing & Supply packages.
+- Direct Advantage vs Fiverr/Upwork: 0% platform markup fees (saving 20%+ in commission), 30 days of post-launch revision SLA support, 100% IP codebase ownership handover, and direct WhatsApp communication line to founders (Ujjwal & Raj).
 
 CRITICAL DISCOVERY TERMS:
 - *PRICES ARE NEGOTIABLE* - ALWAYS emphasize that all prices are negotiable and custom budget options can be customized for client comfort.
@@ -430,6 +443,171 @@ STRICT CONCISENESS & TOKEN-SAVING RULES:
 
 // ----------------- SEO & SEARCH ENGINES OPTIMIZATION -----------------
 
+// Helper to serve index.html with dynamically injected SEO meta-tags & JSON-LD schema
+async function serveIndexWithSEO(req: express.Request, res: express.Response, templatePath: string) {
+  try {
+    let html = await fs.readFile(templatePath, "utf8");
+    const pathname = req.path;
+    const host = req.get("host") || "webxcel.in";
+    const protocol = req.protocol === "https" || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+    const baseUrl = `${protocol}://${host}`;
+
+    // Default values (Home page)
+    let title = "WEBXcel | Custom Website Development, Tailored CRM & High-Impact Video Editing";
+    let description = "WEBXcel engineers high-performance, hand-coded business websites, tailored CRM dashboards, and professional video edits designed to unlock small enterprise potential. Zero templates, raw speed, maximum growth.";
+    let keywords = "Website Development, CRM Development, Video Editing, Software Developer, Web Design Agency, custom software, business automation, React developer, Accenture developer, CRM database, video post-production, SEO optimization, high-speed website, custom leads management, fiverr alternative, upwork alternative, hire developers USA, software agency India";
+    let schemaJson = "";
+
+    if (pathname === "/services") {
+      title = "Services | High-Performance Hand-Coded Web Systems | WEBXcel";
+      description = "Explore our custom software engineering services starting at 6999 INR / 79 USD. We develop custom React sites, tailored CRM pipelines, conversational AI agents, and dynamic WhatsApp/outreach dialers.";
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Custom Software Development",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "WEBXcel"
+        },
+        "areaServed": [
+          { "@type": "Country", "name": "India" },
+          { "@type": "Country", "name": "United States" }
+        ],
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "USD",
+          "lowPrice": "79",
+          "offers": [
+            {
+              "@type": "Offer",
+              "name": "Business Website Development",
+              "price": "6999",
+              "priceCurrency": "INR"
+            },
+            {
+              "@type": "Offer",
+              "name": "Tailored CRM Creation",
+              "price": "14999",
+              "priceCurrency": "INR"
+            },
+            {
+              "@type": "Offer",
+              "name": "AI Agents & Chatbots",
+              "price": "14999",
+              "priceCurrency": "INR"
+            }
+          ]
+        }
+      });
+    } else if (pathname === "/fiverr-alternative") {
+      title = "Fiverr Alternative: Elite Direct React Web Developers | WEBXcel";
+      description = "Skip the Fiverr platform fees and middleman markups. Hire direct software engineers for custom React web design and database CRM development in the USA and India.";
+      keywords += ", fiverr alternative, freelance developer alternative, upwork alternative, hire react developer direct";
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Direct React Engineering vs Fiverr Freelance Marketplaces",
+        "description": "A comprehensive comparison between hiring custom developers directly vs using generic freelance platforms like Fiverr and Upwork.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "WEBXcel",
+          "url": "https://webxcel.in"
+        }
+      });
+    } else if (pathname === "/portfolio") {
+      title = "Our Portfolio | Production-Ready Projects | WEBXcel";
+      description = "Browse real production implementations, tailored enterprise dashboard screens, and customer platforms crafted with speed and clean code by WEBXcel.";
+    } else if (pathname === "/pricing") {
+      title = "Pricing | Flat Rates, Zero Hidden Commissions | WEBXcel";
+      description = "Fair, flat-rate pricing. Build your custom system starting at 6999 INR / 79 USD with complete IP ownership and zero platform markups.";
+    } else if (pathname === "/about") {
+      title = "About Us | Founding Story & Engineering Journey | WEBXcel";
+      description = "Meet Ujjwal Tiwari & Raj Dubey, founders of WEBXcel. Discover our self-taught coding background and our mission to provide high-quality engineering directly.";
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "mainEntity": [
+          {
+            "@type": "Person",
+            "name": "Ujjwal Tiwari",
+            "jobTitle": "Co-founder & Lead Engineer",
+            "worksFor": {
+              "@type": "Organization",
+              "name": "WEBXcel"
+            }
+          },
+          {
+            "@type": "Person",
+            "name": "Raj Dubey",
+            "jobTitle": "Co-founder & Architect Engineer",
+            "worksFor": {
+              "@type": "Organization",
+              "name": "WEBXcel"
+            }
+          }
+        ]
+      });
+    } else if (pathname === "/estimator") {
+      title = "Quote Estimator | Calculate Custom Project Scope | WEBXcel";
+      description = "Use our instant cost estimator to build your spec online and secure direct developer pricing for React portals, CRM setups, and custom apps.";
+    } else if (pathname === "/consultant") {
+      title = "AI Consultant | Brainstorm Your Product Build | WEBXcel";
+      description = "Talk directly with our conversational AI advisor to draft user flows, budget breakdowns, and technology suggestions for your custom project.";
+    } else {
+      // Home page JSON-LD
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "WEBXcel",
+        "url": "https://webxcel.in",
+        "image": "https://webxcel.in/assets/webxcel_banner.png",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Bengaluru",
+          "addressRegion": "Karnataka",
+          "addressCountry": "IN"
+        },
+        "description": "High-performance website development, custom CRM systems, database automation, and professional video editing. Crafted by Ujjwal Tiwari & Raj Dubey.",
+        "areaServed": ["IN", "US"]
+      });
+    }
+
+    // Perform replacements
+    // 1. Replace Title
+    html = html.replace(/<title>[^<]*<\/title>/i, `<title>${title}</title>`);
+    
+    // 2. Replace Description
+    html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${description}" />`);
+    
+    // 3. Replace Keywords
+    html = html.replace(/<meta\s+name="keywords"\s+content="[^"]*"\s*\/?>/i, `<meta name="keywords" content="${keywords}" />`);
+    
+    // 4. Replace Canonical Link
+    html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${baseUrl}${pathname === '/' ? '' : pathname}" />`);
+    
+    // 5. Replace Open Graph Tags
+    html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${title}" />`);
+    html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${description}" />`);
+    html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:url" content="${baseUrl}${pathname === '/' ? '' : pathname}" />`);
+    
+    // 6. Replace Twitter Tags
+    html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${title}" />`);
+    html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${description}" />`);
+    html = html.replace(/<meta\s+name="twitter:url"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:url" content="${baseUrl}${pathname === '/' ? '' : pathname}" />`);
+
+    // 7. Inject JSON-LD Schema (Replace first JSON-LD script block if it exists)
+    if (schemaJson) {
+      html = html.replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/i, `<script type="application/ld+json">${schemaJson}</script>`);
+    }
+
+    res.setHeader("Content-Type", "text/html");
+    res.send(html);
+  } catch (error) {
+    console.error("SEO Metadata dynamic injection failed:", error);
+    res.sendFile(templatePath);
+  }
+}
+
 // Dynamic Sitemap generator mapping all client-side pages and hashes
 app.get("/sitemap.xml", (req, res) => {
   const host = req.get("host") || "webxcel.in";
@@ -448,35 +626,42 @@ app.get("/sitemap.xml", (req, res) => {
   </url>
   <!-- Services and Competence Areas -->
   <url>
-    <loc>${baseUrl}/#services</loc>
+    <loc>${baseUrl}/services</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- Fiverr Comparison Page -->
+  <url>
+    <loc>${baseUrl}/fiverr-alternative</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- Portfolio / Done Projects -->
   <url>
-    <loc>${baseUrl}/#portfolio</loc>
+    <loc>${baseUrl}/portfolio</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Pricing Strategy Plans -->
   <url>
-    <loc>${baseUrl}/#pricing</loc>
+    <loc>${baseUrl}/pricing</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Dynamic Lead Quote Calculator -->
   <url>
-    <loc>${baseUrl}/#estimator</loc>
+    <loc>${baseUrl}/estimator</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- About Founders Profile Journey -->
   <url>
-    <loc>${baseUrl}/#about</loc>
+    <loc>${baseUrl}/about</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -533,7 +718,7 @@ async function setupServer() {
     }));
     app.get("*", (req, res) => {
       res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
-      res.sendFile(path.join(distPath, "index.html"));
+      serveIndexWithSEO(req, res, path.join(distPath, "index.html"));
     });
     console.log("Server running in PRODUCTION mode with aggressive Cache-Control headers.");
   }

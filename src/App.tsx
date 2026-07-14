@@ -14,9 +14,19 @@ import Footer from "./components/Footer";
 import LeadPopup from "./components/LeadPopup";
 import { Currency } from "./utils/currency";
 import WhyUs from "./components/WhyUs";
+import FiverrComparison from "./components/FiverrComparison";
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState("home");
+  const getPageFromPath = () => {
+    if (typeof window === "undefined") return "home";
+    const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
+    const hash = window.location.hash.replace("#", "");
+    const validPages = ["services", "consultant", "portfolio", "pricing", "estimator", "about", "fiverr-alternative"];
+    if (validPages.includes(hash)) return hash;
+    return validPages.includes(path) ? path : "home";
+  };
+
+  const [currentPage, setCurrentPage] = useState(getPageFromPath);
   const [currency, setCurrency] = useState<Currency>("INR");
   
   // Selection state to pipe configurations from plans or service cards down to the Quote Builder calculator
@@ -24,6 +34,27 @@ export default function App() {
   const [selectedPlan, setSelectedPlan] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Sync state with dynamic browser URL history changes (Back/Forward buttons)
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPage(getPageFromPath());
+    };
+    window.addEventListener("popstate", handlePopState);
+    
+    // Clean up hashes if they are present by redirecting to the proper path
+    if (window.location.hash) {
+      const pageId = window.location.hash.replace("#", "");
+      const validPages = ["services", "consultant", "portfolio", "pricing", "estimator", "about", "fiverr-alternative"];
+      if (validPages.includes(pageId)) {
+        window.history.replaceState(null, "", `/${pageId}`);
+      } else if (pageId === "home") {
+        window.history.replaceState(null, "", "/");
+      }
+    }
+    
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   useEffect(() => {
     // 1. Check local storage for manual selection override
@@ -91,6 +122,7 @@ export default function App() {
       pricing: "Pricing | Flat Rates, Zero Hidden Commissions",
       estimator: "Quote Estimator | Calculate Custom Project Scope",
       about: "About Us | Founding Story & Engineering Journey",
+      "fiverr-alternative": "Fiverr Alternative: Elite Direct React Web Developers | WEBXcel",
     };
 
     const descriptions: { [key: string]: string } = {
@@ -101,6 +133,7 @@ export default function App() {
       pricing: "Simple, honest, transparent prices with no host lockups. Calculate your build cost online and own your code assets forever.",
       estimator: "Use our interactive cost estimator to outline your custom website spec and secure the best direct rates.",
       about: "Meet Ujjwal Tiwari & Raj Dubey, the team behind WEBXcel. Learn about our philosophy of custom, high-speed, performance-oriented coding.",
+      "fiverr-alternative": "Looking to hire a React developer on Fiverr or Upwork? Learn why businesses choose WEBXcel. Zero platform markups, direct founder communication, 100% custom code.",
     };
 
     if (titles[currentPage]) {
@@ -115,7 +148,11 @@ export default function App() {
 
   const handlePageChange = (pageId: string) => {
     setCurrentPage(pageId);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      const targetPath = pageId === "home" ? "/" : `/${pageId}`;
+      window.history.pushState(null, "", targetPath);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // Pipeline from Service Cards to Estimator
@@ -187,6 +224,10 @@ export default function App() {
 
               {currentPage === "about" && (
                 <AboutUs onPageChange={handlePageChange} />
+              )}
+
+              {currentPage === "fiverr-alternative" && (
+                <FiverrComparison onPageChange={handlePageChange} currency={currency} />
               )}
             </motion.div>
           </AnimatePresence>

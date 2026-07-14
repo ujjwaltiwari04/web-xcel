@@ -81,9 +81,9 @@ export default function Pricing({ onPlanSelect, currency }: PricingProps) {
               * PRICING OPTIONS *
             </span>
           </div>
-          <h2 className="font-sfx text-4xl sm:text-5xl font-normal tracking-normal text-slate-950 uppercase leading-none">
+          <h1 className="font-sfx text-4xl sm:text-5xl font-normal tracking-normal text-slate-950 uppercase leading-none">
             Plain Pricing! Zero Retainers!
-          </h2>
+          </h1>
           <p className="text-zinc-700 text-sm font-bold font-sketch leading-relaxed">
             No recurring hidden host commissions, no forced license lockdowns. You own the code. Pick a plan below, configure your needs, and secure the absolute best rate from the market.
           </p>

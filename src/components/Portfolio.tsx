@@ -141,9 +141,9 @@ export default function Portfolio({ currency }: PortfolioProps) {
                 * INTERACTIVE SHOWCASE *
               </span>
             </div>
-            <h2 className="font-sfx text-4xl sm:text-5xl font-normal tracking-normal text-slate-950 uppercase leading-none">
+            <h1 className="font-sfx text-4xl sm:text-5xl font-normal tracking-normal text-slate-950 uppercase leading-none">
               Real Execution! Try it Live!
-            </h2>
+            </h1>
             <p className="text-zinc-700 text-sm font-bold font-sketch">
               We don't just talk about software competence; we showcase it. Toggle the tabs below to explore our real interactive CRM mockup or review our high-converting design systems.
             </p>

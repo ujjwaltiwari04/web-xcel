@@ -4,7 +4,7 @@ import {
   Calculator, Check, Sparkles, Send, FileText, Smartphone,
   Bot, RefreshCw, Layers, CheckCircle, Copy, CheckCircle2, Calendar 
 } from "lucide-react";
-import { Currency, formatCurrencyValue, basePrices, addonPrices } from "../utils/currency";
+import { Currency, formatCurrencyValue, basePrices, addonPrices, getServiceBasePrice } from "../utils/currency";
 
 interface ContactEstimatorProps {
   initialServiceName?: string;
@@ -21,6 +21,8 @@ export default function ContactEstimator({
 }: ContactEstimatorProps) {
   // Config state
   const [selectedPlan, setSelectedPlan] = useState<string>("growth"); // starter, growth, elite, custom
+  const [selectedServiceTitle, setSelectedServiceTitle] = useState<string>("");
+  const [selectedServicePrice, setSelectedServicePrice] = useState<{ INR: number; USD: number }>({ INR: 0, USD: 0 });
   const [addons, setAddons] = useState<{ [key: string]: boolean }>({
     crm: false,
     chatbot: false,
@@ -38,13 +40,32 @@ export default function ContactEstimator({
     }
     
     if (initialServiceName) {
-      if (initialServiceName.includes("CRM")) setAddons(p => ({ ...p, crm: true }));
-      else if (initialServiceName.includes("Chatbot") || initialServiceName.includes("Agent")) setAddons(p => ({ ...p, chatbot: true }));
-      else if (initialServiceName.includes("Dialer")) setAddons(p => ({ ...p, dialer: true }));
-      else if (initialServiceName.includes("Video")) setAddons(p => ({ ...p, video: true }));
-      else if (initialServiceName.includes("App") || initialServiceName.includes("Software")) setAddons(p => ({ ...p, app: true }));
+      setSelectedServiceTitle(initialServiceName);
+      const price = getServiceBasePrice(initialServiceName);
+      setSelectedServicePrice(price);
+      setSelectedPlan("selected");
+
+      setAddons({
+        crm: initialServiceName.includes("CRM"),
+        chatbot: initialServiceName.includes("Chatbot") || initialServiceName.includes("Agent"),
+        dialer: initialServiceName.includes("Dialer"),
+        video: initialServiceName.includes("Video"),
+        app: initialServiceName.includes("App") || initialServiceName.includes("Software"),
+      });
     }
   }, [initialServiceName, initialPlanName]);
+
+  // Helper to identify if an addon is functionally included in the selected service
+  const isAddonIncluded = (addonKey: string) => {
+    if (selectedPlan !== "selected" || !selectedServiceTitle) return false;
+    const name = selectedServiceTitle.toLowerCase();
+    if (addonKey === "crm" && (name.includes("crm") || name.includes("clinic") || name.includes("real estate") || name.includes("school") || name.includes("gym") || name.includes("law firm") || name.includes("manufacturing"))) return true;
+    if (addonKey === "chatbot" && (name.includes("chatbot") || name.includes("agent") || name.includes("clinic") || name.includes("real estate") || name.includes("law firm"))) return true;
+    if (addonKey === "dialer" && (name.includes("dialer") || name.includes("outreach") || name.includes("elite"))) return true;
+    if (addonKey === "video" && (name.includes("video") || name.includes("edit") || name.includes("elite"))) return true;
+    if (addonKey === "app" && (name.includes("app") || name.includes("software") || name.includes("school") || name.includes("restaurant"))) return true;
+    return false;
+  };
 
   // Lead inputs
   const [clientName, setClientName] = useState(() => localStorage.getItem("webxcel_client_name") || "");
@@ -77,17 +98,30 @@ export default function ContactEstimator({
   const [totalPriceUSD, setTotalPriceUSD] = useState(185);
 
   useEffect(() => {
-    let priceINR = basePrices[selectedPlan]?.INR || 0;
-    let priceUSD = basePrices[selectedPlan]?.USD || 0;
+    let priceINR = 0;
+    let priceUSD = 0;
+
+    if (selectedPlan === "selected") {
+      priceINR = selectedServicePrice.INR;
+      priceUSD = selectedServicePrice.USD;
+    } else {
+      priceINR = basePrices[selectedPlan]?.INR || 0;
+      priceUSD = basePrices[selectedPlan]?.USD || 0;
+    }
+
     Object.keys(addons).forEach((key) => {
       if (addons[key] && addonPrices[key]) {
-        priceINR += addonPrices[key].INR;
-        priceUSD += addonPrices[key].USD;
+        // Skip adding the addon cost if it's already functionally included in the selected service
+        if (!isAddonIncluded(key)) {
+          priceINR += addonPrices[key].INR;
+          priceUSD += addonPrices[key].USD;
+        }
       }
     });
+
     setTotalPriceINR(priceINR);
     setTotalPriceUSD(priceUSD);
-  }, [selectedPlan, addons]);
+  }, [selectedPlan, addons, selectedServicePrice]);
 
   const activeFormattedTotal = currency === "USD" ? `$${totalPriceUSD}` : `₹${totalPriceINR.toLocaleString("en-IN")}`;
 
@@ -96,12 +130,19 @@ export default function ContactEstimator({
   };
 
   const handleBookConsultant = () => {
-    const selectedPlanLabel = selectedPlan === "starter" ? "Starter Web Presence" : selectedPlan === "growth" ? "Business Growth Pack" : selectedPlan === "elite" ? "Elite AI & CRM Suite" : "Custom Setup";
+    const selectedPlanLabel = selectedPlan === "selected" 
+      ? `Selected Service: ${selectedServiceTitle}`
+      : selectedPlan === "starter" ? "Starter Web Presence" : selectedPlan === "growth" ? "Business Growth Pack" : selectedPlan === "elite" ? "Elite AI & CRM Suite" : "Custom Setup";
+    
+    const planPriceVal = selectedPlan === "selected"
+      ? (currency === "USD" ? `$${selectedServicePrice.USD}` : `₹${selectedServicePrice.INR.toLocaleString("en-IN")}`)
+      : basePrices[selectedPlan] ? (currency === "USD" ? `$${basePrices[selectedPlan].USD}` : `₹${basePrices[selectedPlan].INR.toLocaleString("en-IN")}`) : "0";
+
     const cartData = {
       plan: selectedPlanLabel,
-      planPrice: basePrices[selectedPlan] ? (currency === "USD" ? `$${basePrices[selectedPlan].USD}` : `₹${basePrices[selectedPlan].INR.toLocaleString("en-IN")}`) : "0",
+      planPrice: planPriceVal,
       addons: Object.keys(addons)
-        .filter(key => addons[key] && addonPrices[key])
+        .filter(key => addons[key] && addonPrices[key] && !isAddonIncluded(key))
         .map(key => ({
           label: addonPrices[key].label,
           price: currency === "USD" ? `$${addonPrices[key].USD}` : `₹${addonPrices[key].INR.toLocaleString("en-IN")}`
@@ -124,10 +165,17 @@ export default function ContactEstimator({
     
     setIsSubmitting(true);
     try {
-      const selectedPlanLabel = selectedPlan === "starter" ? "Starter Web Presence" : selectedPlan === "growth" ? "Business Growth Pack" : selectedPlan === "elite" ? "Elite AI & CRM Suite" : "Custom Setup";
+      const selectedPlanLabel = selectedPlan === "selected" 
+        ? `Selected Service: ${selectedServiceTitle}`
+        : selectedPlan === "starter" ? "Starter Web Presence" : selectedPlan === "growth" ? "Business Growth Pack" : selectedPlan === "elite" ? "Elite AI & CRM Suite" : "Custom Setup";
+      
+      const planPriceVal = selectedPlan === "selected"
+        ? (currency === "USD" ? `$${selectedServicePrice.USD}` : `₹${selectedServicePrice.INR.toLocaleString("en-IN")}`)
+        : basePrices[selectedPlan] ? (currency === "USD" ? `$${basePrices[selectedPlan].USD}` : `₹${basePrices[selectedPlan].INR.toLocaleString("en-IN")}`) : "0";
+
       let chosenAddons = [];
       Object.keys(addons).forEach((key) => {
-        if (addons[key]) {
+        if (addons[key] && !isAddonIncluded(key)) {
           chosenAddons.push(addonPrices[key].label);
         }
       });
@@ -136,9 +184,9 @@ export default function ContactEstimator({
 
       const cartData = {
         plan: selectedPlanLabel,
-        planPrice: basePrices[selectedPlan] ? (currency === "USD" ? `$${basePrices[selectedPlan].USD}` : `₹${basePrices[selectedPlan].INR.toLocaleString("en-IN")}`) : "0",
+        planPrice: planPriceVal,
         addons: Object.keys(addons)
-          .filter(key => addons[key] && addonPrices[key])
+          .filter(key => addons[key] && addonPrices[key] && !isAddonIncluded(key))
           .map(key => ({
             label: addonPrices[key].label,
             price: currency === "USD" ? `$${addonPrices[key].USD}` : `₹${addonPrices[key].INR.toLocaleString("en-IN")}`
@@ -175,16 +223,23 @@ export default function ContactEstimator({
   };
 
   const getFormattedQuoteText = () => {
-    const selectedPlanLabel = selectedPlan === "starter" ? "Starter Web Presence" : selectedPlan === "growth" ? "Business Growth Pack" : selectedPlan === "elite" ? "Elite AI & CRM Suite" : "Custom Blank Setup";
+    const selectedPlanLabel = selectedPlan === "selected" 
+      ? `Selected Service: ${selectedServiceTitle}`
+      : selectedPlan === "starter" ? "Starter Web Presence" : selectedPlan === "growth" ? "Business Growth Pack" : selectedPlan === "elite" ? "Elite AI & CRM Suite" : "Custom Blank Setup";
+    
     let text = `WEBXcel - Project Quote Estimate\n`;
     text += `===================================\n`;
     text += `Business: ${clientBusiness}\n`;
     text += `Contact Client: ${clientName} (${clientContact})\n`;
-    const planBaseVal = basePrices[selectedPlan] ? (currency === "USD" ? `$${basePrices[selectedPlan].USD}` : `₹${basePrices[selectedPlan].INR.toLocaleString("en-IN")}`) : "0";
+    
+    const planBaseVal = selectedPlan === "selected"
+      ? (currency === "USD" ? `$${selectedServicePrice.USD}` : `₹${selectedServicePrice.INR.toLocaleString("en-IN")}`)
+      : basePrices[selectedPlan] ? (currency === "USD" ? `$${basePrices[selectedPlan].USD}` : `₹${basePrices[selectedPlan].INR.toLocaleString("en-IN")}`) : "0";
+    
     text += `Base Package: ${selectedPlanLabel} (${planBaseVal})\n`;
     text += `Selected Custom Add-ons:\n`;
     Object.keys(addons).forEach((key) => {
-      if (addons[key] && addonPrices[key]) {
+      if (addons[key] && addonPrices[key] && !isAddonIncluded(key)) {
         const addonCost = currency === "USD" ? `$${addonPrices[key].USD}` : `₹${addonPrices[key].INR.toLocaleString("en-IN")}`;
         text += `- ${addonPrices[key].label} (${addonCost})\n`;
       }
@@ -235,9 +290,9 @@ export default function ContactEstimator({
               * INTERACTIVE CALCULATOR *
             </span>
           </div>
-          <h2 className="font-sfx text-4xl sm:text-5xl font-normal tracking-normal text-slate-950 uppercase leading-none">
+          <h1 className="font-sfx text-4xl sm:text-5xl font-normal tracking-normal text-slate-950 uppercase leading-none">
             Configure Your Digital Build!
-          </h2>
+          </h1>
           <p className="text-zinc-700 text-sm font-bold font-sketch leading-relaxed">
             Drag and customize your agency pack. Get a transparent, live price estimate based on market's lowest rates, then lock your slot below.
           </p>
@@ -286,6 +341,42 @@ export default function ContactEstimator({
                       </button>
                     ))}
                   </div>
+
+                  {selectedServiceTitle && (
+                    <div className="mt-3">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPlan("selected")}
+                        className={`w-full p-4 rounded-xl border-2 border-black text-left transition-all flex items-center justify-between cursor-pointer ${
+                          selectedPlan === "selected"
+                            ? "bg-white border-4 shadow-[3px_3px_0px_#000000] translate-x-[-1px] translate-y-[-1px]"
+                            : "bg-white/60 border-2 hover:border-black hover:shadow-[1.5px_1.5px_0px_#000000]"
+                        }`}
+                      >
+                        <div className="flex items-start space-x-3.5 text-left">
+                          <div className={`w-5.5 h-5.5 rounded-full border-2 border-black mt-0.5 flex items-center justify-center shrink-0 transition-all ${
+                            selectedPlan === "selected" ? "bg-yellow-300" : "bg-white border-zinc-350"
+                          }`}>
+                            {selectedPlan === "selected" && <div className="w-2.5 h-2.5 rounded-full bg-black" />}
+                          </div>
+                          <div>
+                            <span className="block text-[10px] font-mono font-black text-zinc-500 uppercase tracking-wider leading-none">
+                              You Selected:
+                            </span>
+                            <span className="block text-sm font-black text-slate-950 mt-1 leading-tight">
+                              {selectedServiceTitle}
+                            </span>
+                            <span className="block text-[10px] text-zinc-500 font-bold mt-1 leading-tight">
+                              Custom package configured from services catalog
+                            </span>
+                          </div>
+                        </div>
+                        <span className="block text-base font-black text-[#3B82F6] font-display ml-4 shrink-0">
+                          {currency === "USD" ? `$${selectedServicePrice.USD}` : `₹${selectedServicePrice.INR.toLocaleString("en-IN")}`}
+                        </span>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Step 2: Custom Add-ons Checkboxes */}
@@ -298,12 +389,19 @@ export default function ContactEstimator({
                   <div className="space-y-2.5">
                     {Object.keys(addonPrices).map((key) => {
                       const addon = addonPrices[key];
-                      const isChecked = addons[key];
+                      const included = isAddonIncluded(key);
+                      const isChecked = addons[key] || included;
                       return (
                         <div
                           key={key}
-                          onClick={() => toggleAddon(key)}
-                          className={`p-3.5 rounded-xl border-2 border-black transition-all flex items-center justify-between cursor-pointer ${
+                          onClick={() => {
+                            if (!included) {
+                              toggleAddon(key);
+                            }
+                          }}
+                          className={`p-3.5 rounded-xl border-2 border-black transition-all flex items-center justify-between ${
+                            included ? "cursor-default opacity-95" : "cursor-pointer"
+                          } ${
                             isChecked
                               ? "bg-white border-4 shadow-[3px_3px_0px_#000000]"
                               : "bg-white/60 border-2 hover:border-black hover:shadow-[1.5px_1.5px_0px_#000000]"
@@ -318,12 +416,21 @@ export default function ContactEstimator({
                               {isChecked && <Check className="w-3.5 h-3.5 stroke-[3.5]" />}
                             </div>
                             <div>
-                              <span className="block text-xs font-black text-slate-950">{addon.label}</span>
+                              <span className="block text-xs font-black text-slate-950">
+                                {addon.label}
+                                {included && (
+                                  <span className="ml-2 text-[8px] bg-green-200 text-green-800 border border-green-400 px-1.5 py-0.5 rounded font-mono font-black uppercase tracking-wider">
+                                    Base Feature
+                                  </span>
+                                )}
+                              </span>
                               <span className="block text-[10px] text-zinc-500 font-bold mt-0.5">{addon.desc}</span>
                             </div>
                           </div>
                           <span className="text-xs font-mono font-black text-slate-950 bg-yellow-300 border-2 border-black px-2.5 py-1 rounded-lg shadow-[1.5px_1.5px_0px_#000000]">
-                            +{currency === "USD" ? `$${addon.USD}` : `₹${addon.INR.toLocaleString("en-IN")}`}
+                            {included 
+                              ? "Included" 
+                              : `+${currency === "USD" ? `$${addon.USD}` : `₹${addon.INR.toLocaleString("en-IN")}`}`}
                           </span>
                         </div>
                       );
