@@ -201,6 +201,16 @@ export default function ContactEstimator({
     setTimeout(() => setCopiedQuote(false), 2000);
   };
 
+  const downloadQuoteAsTxt = () => {
+    const element = document.createElement("a");
+    const file = new Blob([getFormattedQuoteText()], { type: "text/plain" });
+    element.href = URL.createObjectURL(file);
+    element.download = `WebXcel_Project_Quote_${clientBusiness.replace(/\s+/g, "_") || "Estimate"}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   const handleWhatsAppRedirect = () => {
     const encodedText = encodeURIComponent(
       `Hi WEBXcel! I generated a custom project quote for my business "${clientBusiness}".\n\n` +
@@ -430,9 +440,16 @@ export default function ContactEstimator({
                   </form>
                 </div>
 
-                <span className="block text-[9px] text-zinc-500 font-mono text-center uppercase tracking-wider mt-5 font-black leading-none">
-                  🔒 Secure Data Encryption Policy
-                </span>
+                <div className="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-[9px] font-mono text-zinc-500 font-black uppercase tracking-wider leading-none border-t border-dashed border-zinc-200 pt-4">
+                  <span>🔒 Secure Data Policy</span>
+                  <div className="flex items-center space-x-1.5 text-emerald-600 dark:text-emerald-400">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span>Database Synced Live to Sheets</span>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ) : (
@@ -468,14 +485,22 @@ export default function ContactEstimator({
                 </pre>
               </div>
 
-              {/* Copy and WhatsApp direct actions */}
+              {/* Copy, Download, and WhatsApp direct actions */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
                 <button
                   onClick={copyQuoteToClipboard}
                   className="px-5 py-3.5 bg-white border-2 border-black hover:bg-zinc-50 rounded-xl text-xs font-black uppercase tracking-wider text-slate-950 transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-[3px_3px_0px_#000000] shrink-0 animate-none"
                 >
-                  {copiedQuote ? <Check className="w-4 h-4 text-emerald-650 stroke-[3.5]" /> : <Copy className="w-4 h-4 text-[#3B82F6]" />}
-                  <span>{copiedQuote ? "Quote Copied!" : "Copy Quotation Specs"}</span>
+                  {copiedQuote ? <Check className="w-4 h-4 text-emerald-600 stroke-[3.5]" /> : <Copy className="w-4 h-4 text-[#3B82F6]" />}
+                  <span>{copiedQuote ? "Quote Copied!" : "Copy Specs"}</span>
+                </button>
+
+                <button
+                  onClick={downloadQuoteAsTxt}
+                  className="px-5 py-3.5 bg-white border-2 border-black hover:bg-zinc-50 rounded-xl text-xs font-black uppercase tracking-wider text-slate-950 transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-[3px_3px_0px_#000000] shrink-0"
+                >
+                  <FileText className="w-4 h-4 text-emerald-650" />
+                  <span>Download Spec</span>
                 </button>
 
                 <button
@@ -483,7 +508,7 @@ export default function ContactEstimator({
                   className="px-6 py-3.5 bg-emerald-400 hover:bg-black hover:text-white border-2 border-black text-black rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-[3px_3px_0px_#000000]"
                 >
                   <Smartphone className="w-4 h-4" />
-                  <span>Send Quote via WhatsApp</span>
+                  <span>Send via WhatsApp</span>
                 </button>
               </div>
 

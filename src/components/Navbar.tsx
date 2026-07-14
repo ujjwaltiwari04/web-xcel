@@ -16,6 +16,13 @@ export default function Navbar({ onPageChange, currentPage, currency, onCurrency
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      document.documentElement.classList.remove("dark");
+      localStorage.removeItem("webxcel_theme");
+    }
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };

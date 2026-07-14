@@ -81,6 +81,38 @@ export default function App() {
     }
   }, []);
 
+  // SEO Metadata dynamic updater
+  useEffect(() => {
+    const titles: { [key: string]: string } = {
+      home: "WEBXcel | Custom Website Development, CRM & AI Chatbots",
+      services: "Services | High-Performance Hand-Coded Web Systems",
+      consultant: "AI Consultant | Brainstorm Your Product Build",
+      portfolio: "Our Portfolio | Production-Ready Projects",
+      pricing: "Pricing | Flat Rates, Zero Hidden Commissions",
+      estimator: "Quote Estimator | Calculate Custom Project Scope",
+      about: "About Us | Founding Story & Engineering Journey",
+    };
+
+    const descriptions: { [key: string]: string } = {
+      home: "WEBXcel engineers high-performance, hand-coded business websites, tailored CRM dashboards, and professional video edits designed to unlock small enterprise potential.",
+      services: "Explore our range of custom software services including React web presence, CRM pipelines, Gemini AI agents, auto-dialers, and promotional editing.",
+      consultant: "Chat with XcelBot, our dedicated AI consultant, to get instant pricing estimates and architecture suggestions for your software needs.",
+      portfolio: "Browse our hand-coded software implementations, CRM admin dashboard setups, and digital platforms built for real-world business growth.",
+      pricing: "Simple, honest, transparent prices with no host lockups. Calculate your build cost online and own your code assets forever.",
+      estimator: "Use our interactive cost estimator to outline your custom website spec and secure the best direct rates.",
+      about: "Meet Ujjwal Tiwari & Raj Dubey, the team behind WEBXcel. Learn about our philosophy of custom, high-speed, performance-oriented coding.",
+    };
+
+    if (titles[currentPage]) {
+      document.title = titles[currentPage];
+    }
+    
+    const metaDesc = document.querySelector("meta[name='description']");
+    if (metaDesc && descriptions[currentPage]) {
+      metaDesc.setAttribute("content", descriptions[currentPage]);
+    }
+  }, [currentPage]);
+
   const handlePageChange = (pageId: string) => {
     setCurrentPage(pageId);
     window.scrollTo({ top: 0, behavior: "smooth" });

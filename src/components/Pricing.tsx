@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Check, HelpCircle, AlertCircle, X, ShieldCheck } from "lucide-react";
 import { Currency, formatCurrencyValue } from "../utils/currency";
 import WhyUs from "./WhyUs";
+import FAQ from "./FAQ";
 
 interface PricingProps {
   onPlanSelect: (planName: string, amount: string) => void;
@@ -205,6 +206,7 @@ export default function Pricing({ onPlanSelect, currency }: PricingProps) {
       </div>
       </section>
       <WhyUs />
+      <FAQ />
     </>
   );
 }

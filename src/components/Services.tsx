@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Currency, formatCurrencyValue } from "../utils/currency";
 import WhyUs from "./WhyUs";
+import FAQ from "./FAQ";
 
 interface ServicesProps {
   onServiceSelect: (serviceName: string) => void;
@@ -368,6 +369,9 @@ export default function Services({ onServiceSelect, currency }: ServicesProps) {
 
       {/* Why Us section integrated at the bottom of Services */}
       <WhyUs />
+
+      {/* Accordion FAQ block */}
+      <FAQ />
 
     </section>
   );
