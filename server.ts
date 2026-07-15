@@ -250,7 +250,7 @@ Transcript:
 ${transcript}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: extractionPrompt }] }],
       config: {
         temperature: 0.1,
@@ -704,7 +704,7 @@ STRICT CONCISENESS & CONVERSATIONAL RULES:
 
     let response;
     let lastError: any = null;
-    const modelsToTry = ["gemini-3.5-flash", "gemini-3.1-flash-lite"];
+    const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash"];
 
     for (const modelName of modelsToTry) {
       let attempts = 0;
