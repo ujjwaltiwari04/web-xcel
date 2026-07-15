@@ -88,7 +88,7 @@ export default function WhyUs() {
                 key={idx}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
+                viewport={{ once: true, margin: "-15px" }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
                 className={`group border-4 border-black p-6 rounded-2xl bg-white shadow-[4px_4px_0px_#000000] hover:shadow-[8px_8px_0px_#000000] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200 text-left flex flex-col justify-between`}
               >

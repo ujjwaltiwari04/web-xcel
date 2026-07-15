@@ -1,21 +1,106 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
-import Services from "./components/Services";
-import AIConsultant from "./components/AIConsultant";
-import Portfolio from "./components/Portfolio";
-import Pricing from "./components/Pricing";
-import ContactEstimator from "./components/ContactEstimator";
-import SheetsAdmin from "./components/SheetsAdmin";
 import HomeExtendedContent from "./components/HomeExtendedContent";
-import AboutUs from "./components/AboutUs";
 import Footer from "./components/Footer";
 import LeadPopup from "./components/LeadPopup";
 import { Currency } from "./utils/currency";
 import WhyUs from "./components/WhyUs";
-import FiverrComparison from "./components/FiverrComparison";
-import Blog from "./components/Blog";
+
+// Lazy-load heavier sub-pages so they are code-split into fast-loading separate bundles
+const Services = lazy(() => import("./components/Services"));
+const AIConsultant = lazy(() => import("./components/AIConsultant"));
+const Portfolio = lazy(() => import("./components/Portfolio"));
+const Pricing = lazy(() => import("./components/Pricing"));
+const ContactEstimator = lazy(() => import("./components/ContactEstimator"));
+const SheetsAdmin = lazy(() => import("./components/SheetsAdmin"));
+const AboutUs = lazy(() => import("./components/AboutUs"));
+const FiverrComparison = lazy(() => import("./components/FiverrComparison"));
+const Blog = lazy(() => import("./components/Blog"));
+
+// Custom high-performance, lightweight loading skeleton placeholder for dynamic chunks
+function SectionLoader() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    "COMPILING HAND-CODED REFRESH...",
+    "OPTIMIZING WEBXCEL ENGINES...",
+    "ASSEMBLING HIGH-SPEED LAYOUTS...",
+    "TUNING COMPONENT PIPELINES...",
+    "POLISHING BRAND EXPERIENCES..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStep((s) => (s + 1) % steps.length);
+    }, 750);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center py-32 px-4 text-center">
+      {/* Neo-brutalist themed loading animation widget */}
+      <div className="relative w-20 h-20 mb-8 flex items-center justify-center">
+        {/* Shadow box */}
+        <div className="absolute inset-0 bg-black rounded-2xl translate-x-1.5 translate-y-1.5"></div>
+        {/* Animated main block */}
+        <motion.div 
+          animate={{ 
+            rotate: [0, 90, 180, 270, 360],
+            borderRadius: ["12px", "4px", "24px", "12px"],
+            backgroundColor: ["#3B82F6", "#10B981", "#06B6D4", "#F59E0B", "#3B82F6"]
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+          className="absolute inset-0 border-4 border-black flex items-center justify-center"
+        >
+          {/* Animated inner logo core */}
+          <motion.div 
+            animate={{ scale: [1, 1.25, 0.85, 1.25, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            className="w-6 h-6 bg-white border-2 border-black rotate-45"
+          />
+        </motion.div>
+      </div>
+
+      {/* Retro Status Card */}
+      <div className="border-4 border-black bg-white p-5 rounded-2xl shadow-[4px_4px_0px_#000000] max-w-sm w-full">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex space-x-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500 border border-black animate-ping"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 border border-black"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 border border-black"></span>
+          </div>
+          <span className="font-mono text-[9px] font-black text-zinc-400 uppercase tracking-widest">
+            XCEL-ENGINE v1.2
+          </span>
+        </div>
+        
+        {/* Animated dynamic loading steps */}
+        <p className="font-mono text-[10.5px] font-black text-slate-950 uppercase tracking-wider h-5 flex items-center justify-center leading-none">
+          {steps[step]}
+        </p>
+
+        {/* Dynamic retro-styled progress bar */}
+        <div className="mt-4 w-full bg-zinc-100 border-2 border-black h-4 overflow-hidden rounded-md relative">
+          <motion.div 
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+            className="h-full bg-[#3B82F6] relative"
+            style={{
+              backgroundImage: "linear-gradient(45deg, rgba(0,0,0,0.15) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.15) 75%, transparent 75%, transparent)",
+              backgroundSize: "16px 16px"
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const getPageFromPath = () => {
@@ -25,6 +110,7 @@ export default function App() {
     const validPages = ["services", "consultant", "portfolio", "pricing", "estimator", "about", "fiverr-alternative", "blog"];
     if (validPages.includes(hash)) return hash;
     if (path === "blog" || path.startsWith("blog/")) return "blog";
+    if (path === "services" || path.startsWith("services/")) return "services";
     return validPages.includes(path) ? path : "home";
   };
 
@@ -89,10 +175,14 @@ export default function App() {
     // 4. Default to USD if outside India, then do a background check
     setCurrency("USD");
 
-    // Non-blocking background IP geolocation check
-    fetch("https://ipapi.co/json/")
+    // Non-blocking background IP geolocation check with a 1.5s timeout guard
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+    fetch("https://ipapi.co/json/", { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
+        clearTimeout(timeoutId);
         if (data && data.country_code) {
           const detectedCurrency = data.country_code === "IN" ? "INR" : "USD";
           setCurrency(detectedCurrency);
@@ -100,7 +190,7 @@ export default function App() {
         }
       })
       .catch(() => {
-        // Safe fallback in case of CORS or connectivity blocks
+        // Safe fallback in case of CORS, timeouts, or connectivity blocks
         console.log("Using browser localized settings.");
       });
   }, []);
@@ -140,6 +230,32 @@ export default function App() {
 
     let title = titles[currentPage];
     let description = descriptions[currentPage];
+
+    if (currentPage === "services") {
+      const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
+      const serviceTitles: { [key: string]: string } = {
+        "services/ai-agents-chatbots": "Custom AI Agents & Intelligent Chatbots Development | WEBXcel",
+        "services/ai-agents": "Custom AI Agents & Intelligent Chatbots Development | WEBXcel",
+        "services/web-development": "High-Speed Custom React & Tailwind Web Development | WEBXcel",
+        "services/crm": "Tailored CRM & Sales Pipeline Dashboard Development | WEBXcel",
+        "services/software-development": "Bespoke Custom Software & Enterprise ERP Development | WEBXcel",
+        "services/mobile-app-development": "Cross-Platform iOS & Android Mobile App Development | WEBXcel",
+      };
+      const serviceDescs: { [key: string]: string } = {
+        "services/ai-agents-chatbots": "Supercharge your business efficiency and customer support. WEBXcel builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.",
+        "services/ai-agents": "Supercharge your business efficiency and customer support. WEBXcel builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.",
+        "services/web-development": "Get a lightning-fast, premium hand-coded website with zero platform lock-in. WEBXcel designs and engineers fully optimized React portals and custom business websites.",
+        "services/crm": "Stop fighting Excel spreadsheets. Get a customized, secure CRM database panel built specifically for your sales workflows and lead pipeline tracking.",
+        "services/software-development": "Automate manual operations with powerful, lightweight custom software. WEBXcel engineers custom ERP systems, HR portals, payroll engines, and inventory management suites.",
+        "services/mobile-app-development": "Turn your product concept into a premium, responsive cross-platform mobile app. WEBXcel builds fast, native-quality iOS and Android applications using React Native and Flutter.",
+      };
+      if (serviceTitles[path]) {
+        title = serviceTitles[path];
+      }
+      if (serviceDescs[path]) {
+        description = serviceDescs[path];
+      }
+    }
 
     if (currentPage === "blog") {
       const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
@@ -247,53 +363,55 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.35, ease: "easeInOut" }}
             >
-              {currentPage === "home" && (
-                <>
-                  {/* Hero Presentation Page */}
-                  <Hero onCtaclick={handlePageChange} currency={currency} />
-                  {/* Newly extended dynamic content for Homepage */}
-                  <HomeExtendedContent onAction={handlePageChange} />
-                  {/* Refined Why Us Value Proposition Section */}
-                  <WhyUs />
-                </>
-              )}
+              <Suspense fallback={<SectionLoader />}>
+                {currentPage === "home" && (
+                  <>
+                    {/* Hero Presentation Page */}
+                    <Hero onCtaclick={handlePageChange} currency={currency} />
+                    {/* Newly extended dynamic content for Homepage */}
+                    <HomeExtendedContent onAction={handlePageChange} />
+                    {/* Refined Why Us Value Proposition Section */}
+                    <WhyUs />
+                  </>
+                )}
 
-              {currentPage === "services" && (
-                <Services onServiceSelect={handleServiceSelect} currency={currency} />
-              )}
+                {currentPage === "services" && (
+                  <Services onServiceSelect={handleServiceSelect} currency={currency} />
+                )}
 
-              {currentPage === "consultant" && (
-                <AIConsultant currency={currency} />
-              )}
+                {currentPage === "consultant" && (
+                  <AIConsultant currency={currency} />
+                )}
 
-              {currentPage === "portfolio" && (
-                <Portfolio currency={currency} />
-              )}
+                {currentPage === "portfolio" && (
+                  <Portfolio currency={currency} />
+                )}
 
-              {currentPage === "pricing" && (
-                <Pricing onPlanSelect={handlePlanSelect} currency={currency} />
-              )}
+                {currentPage === "pricing" && (
+                  <Pricing onPlanSelect={handlePlanSelect} currency={currency} />
+                )}
 
-              {currentPage === "estimator" && (
-                <ContactEstimator 
-                  initialServiceName={selectedService} 
-                  initialPlanName={selectedPlan}
-                  initialPrice={selectedPrice}
-                  currency={currency}
-                />
-              )}
+                {currentPage === "estimator" && (
+                  <ContactEstimator 
+                    initialServiceName={selectedService} 
+                    initialPlanName={selectedPlan}
+                    initialPrice={selectedPrice}
+                    currency={currency}
+                  />
+                )}
 
-              {currentPage === "about" && (
-                <AboutUs onPageChange={handlePageChange} />
-              )}
+                {currentPage === "about" && (
+                  <AboutUs onPageChange={handlePageChange} />
+                )}
 
-              {currentPage === "fiverr-alternative" && (
-                <FiverrComparison onPageChange={handlePageChange} currency={currency} />
-              )}
+                {currentPage === "fiverr-alternative" && (
+                  <FiverrComparison onPageChange={handlePageChange} currency={currency} />
+                )}
 
-              {currentPage === "blog" && (
-                <Blog currency={currency} onPageChange={handlePageChange} />
-              )}
+                {currentPage === "blog" && (
+                  <Blog currency={currency} onPageChange={handlePageChange} />
+                )}
+              </Suspense>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -301,7 +419,11 @@ export default function App() {
 
       <div>
         {/* Google Sheets Owner Integration Console */}
-        {isAdmin && <SheetsAdmin />}
+        {isAdmin && (
+          <Suspense fallback={<SectionLoader />}>
+            <SheetsAdmin />
+          </Suspense>
+        )}
 
         {/* Footer Branding Signature details */}
         <Footer onPageChange={handlePageChange} currency={currency} />

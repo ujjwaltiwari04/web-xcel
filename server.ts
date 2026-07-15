@@ -4,12 +4,16 @@ import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import fs from "fs/promises";
 import cors from "cors";
+import compression from "compression";
 
 dotenv.config();
 
 // Initialize Express
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+
+// Enable high-speed Gzip compression for all text-based assets (JS, CSS, HTML, JSON)
+app.use(compression());
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -104,6 +108,213 @@ async function appendLeadToSheet(lead: any, config: SheetsConfig) {
     throw new Error(`Google Sheets API returned ${response.status}: ${errorText}`);
   }
   return true;
+}
+
+async function saveAndForwardLead(leadData: {
+  name: string;
+  phone: string;
+  email?: string;
+  location?: string;
+  lookingFor: string;
+  cart?: any;
+}) {
+  const newLead = {
+    id: "lead_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+    name: leadData.name,
+    location: leadData.location || "Not provided",
+    phone: leadData.phone || "Not provided",
+    email: leadData.email || "Not provided",
+    lookingFor: leadData.lookingFor,
+    cart: leadData.cart || null,
+    createdAt: new Date().toISOString()
+  };
+
+  const fs = await import("fs/promises");
+  const leadsFilePath = path.join(process.cwd(), "leads.json");
+  
+  let leads = [];
+  try {
+    const data = await fs.readFile(leadsFilePath, "utf8");
+    leads = JSON.parse(data);
+  } catch (e) {
+    // start with empty
+  }
+
+  leads.push(newLead);
+  await fs.writeFile(leadsFilePath, JSON.stringify(leads, null, 2), "utf8");
+
+  // Forward to Google Sheets Webhook
+  let googleSheetWebhookUrl = (process.env.GOOGLE_SHEETS_WEBHOOK_URL || "").trim();
+  if (googleSheetWebhookUrl.startsWith('"') && googleSheetWebhookUrl.endsWith('"')) {
+    googleSheetWebhookUrl = googleSheetWebhookUrl.slice(1, -1);
+  }
+  if (googleSheetWebhookUrl.startsWith("'") && googleSheetWebhookUrl.endsWith("'")) {
+    googleSheetWebhookUrl = googleSheetWebhookUrl.slice(1, -1);
+  }
+  const fallbackUrl = "https://script.google.com/macros/s/AKfycbyoHXWwF5zDu6T9hvYmCQk6nDEdBFAVRpyz0ioSM1f-GwHC3WP0SH1s4zjirGM3Cdy7wQ/exec";
+  if (!googleSheetWebhookUrl || !googleSheetWebhookUrl.startsWith("http")) {
+    googleSheetWebhookUrl = fallbackUrl;
+  }
+
+  if (googleSheetWebhookUrl) {
+    try {
+      console.log("Forwarding lead to Google Sheets webhook via URL:", googleSheetWebhookUrl);
+      const webhookResponse = await fetch(googleSheetWebhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newLead),
+      });
+      if (webhookResponse.ok) {
+        console.log("Successfully forwarded lead to Google Sheets webhook!");
+      }
+    } catch (webhookErr) {
+      console.error("Failed to forward lead to Google Sheets Webhook:", webhookErr);
+    }
+  }
+
+  // Auto-append to Google Sheets if connected
+  try {
+    const configPath = path.join(process.cwd(), "sheets-config.json");
+    let fileExists = false;
+    try {
+      await fs.access(configPath);
+      fileExists = true;
+    } catch (_) {}
+
+    if (fileExists) {
+      const configData = await fs.readFile(configPath, "utf8");
+      const config = JSON.parse(configData);
+      if (config.spreadsheetId && config.accessToken) {
+        console.log("Automatically syncing new lead to connected Google Sheet...");
+        await appendLeadToSheet(newLead, config);
+        console.log("Lead synced to Google Sheets successfully!");
+      }
+    }
+  } catch (e) {
+    console.log("Google Sheets auto-sync failed:", e);
+  }
+
+  return newLead;
+}
+
+async function isDuplicateLead(phone: string, email: string) {
+  if (!phone && !email) return true;
+  try {
+    const fs = await import("fs/promises");
+    const leadsFilePath = path.join(process.cwd(), "leads.json");
+    const data = await fs.readFile(leadsFilePath, "utf8");
+    const leads = JSON.parse(data);
+    
+    // Check if any lead in the last 15 items has the same phone or email
+    const recentLeads = leads.slice(-15);
+    for (const lead of recentLeads) {
+      if (phone && phone !== "Not provided" && lead.phone === phone) return true;
+      if (email && email !== "Not provided" && lead.email === email) return true;
+    }
+  } catch (e) {
+    // leads file does not exist
+  }
+  return false;
+}
+
+async function extractLeadFromConversation(messages: any[]) {
+  const ai = getGeminiClient();
+  if (!ai) return null;
+
+  try {
+    const transcript = messages.map(m => `${m.role === "assistant" ? "XcelBot" : "User"}: ${m.content}`).join("\n");
+    
+    const extractionPrompt = `Read the following chat transcript between XcelBot and a User.
+Extract the user's contact lead details if they have provided them.
+To be considered a complete lead, they MUST have provided:
+1. A Name (or reasonable name like "John" or "Ujjwal")
+2. A Contact Number (Phone/WhatsApp) OR an Email Address.
+
+If both are present, extract them. If they only provided a phone and name, or email and name, extract whatever is available.
+If they have NOT provided both a name and a contact method (phone/email), return exactly: {}
+
+Otherwise, return a JSON object with the following fields:
+{
+  "name": "extracted name",
+  "phone": "extracted phone or 'Not provided'",
+  "email": "extracted email or 'Not provided'",
+  "location": "extracted location/scope of project or 'Not provided'",
+  "lookingFor": "short description of what services they are looking for based on context"
+}
+
+Respond ONLY with valid JSON. Do not include markdown code block syntax. Just the JSON object.
+
+Transcript:
+${transcript}`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: [{ role: "user", parts: [{ text: extractionPrompt }] }],
+      config: {
+        temperature: 0.1,
+        responseMimeType: "application/json"
+      }
+    });
+
+    const text = response.text?.trim() || "{}";
+    const parsed = JSON.parse(text);
+    if (parsed && parsed.name && (parsed.phone !== "Not provided" || parsed.email !== "Not provided")) {
+      return {
+        name: parsed.name,
+        phone: parsed.phone === "Not provided" ? "" : parsed.phone,
+        email: parsed.email === "Not provided" ? "" : parsed.email,
+        location: parsed.location === "Not provided" ? "" : parsed.location,
+        lookingFor: parsed.lookingFor || "AI Consultant Lead"
+      };
+    }
+  } catch (err) {
+    console.warn("Failed to extract lead via Gemini structured analysis:", err);
+  }
+  return null;
+}
+
+function extractLeadViaRegex(messages: any[]) {
+  let foundPhone = "";
+  let foundEmail = "";
+  let foundName = "";
+
+  const phoneRegex = /(?:\+?\d{1,3}[- ]?)?\(?\d{3}\)?[- ]?\d{3}[- ]?\d{4}/g;
+  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  const nameIntroRegex = /(?:my name is|i am|this is|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i;
+
+  for (const msg of messages) {
+    if (msg.role === "user") {
+      const text = msg.content;
+      
+      const phoneMatch = text.match(phoneRegex);
+      if (phoneMatch && phoneMatch.length > 0) {
+        foundPhone = phoneMatch[0];
+      }
+
+      const emailMatch = text.match(emailRegex);
+      if (emailMatch && emailMatch.length > 0) {
+        foundEmail = emailMatch[0];
+      }
+
+      const nameMatch = text.match(nameIntroRegex);
+      if (nameMatch && nameMatch.length > 1) {
+        foundName = nameMatch[1];
+      }
+    }
+  }
+
+  if ((foundPhone || foundEmail) && foundName) {
+    return {
+      name: foundName,
+      phone: foundPhone || "Not provided",
+      email: foundEmail || "Not provided",
+      location: "Extracted via chat",
+      lookingFor: "AI Consultant Consultation"
+    };
+  }
+  return null;
 }
 
 // ------------------- API ROUTES -------------------
@@ -244,96 +455,9 @@ app.post("/api/leads", async (req, res) => {
       return;
     }
 
-    const newLead = {
-      id: "lead_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-      name,
-      location: location || "Not provided",
-      phone,
-      email: email || "Not provided",
-      lookingFor,
-      cart: cart || null,
-      createdAt: new Date().toISOString()
-    };
-
-    const fs = await import("fs/promises");
-    const leadsFilePath = path.join(process.cwd(), "leads.json");
-    
-    let leads = [];
-    try {
-      const data = await fs.readFile(leadsFilePath, "utf8");
-      leads = JSON.parse(data);
-    } catch (e) {
-      // File doesn't exist or is invalid JSON, start with empty list
-    }
-
-    leads.push(newLead);
-    await fs.writeFile(leadsFilePath, JSON.stringify(leads, null, 2), "utf8");
-
-    // Forward to Google Sheets Webhook (using user's Google Apps Script Web App URL)
-    let googleSheetWebhookUrl = (process.env.GOOGLE_SHEETS_WEBHOOK_URL || "").trim();
-    
-    // Clean potential surrounding quotes
-    if (googleSheetWebhookUrl.startsWith('"') && googleSheetWebhookUrl.endsWith('"')) {
-      googleSheetWebhookUrl = googleSheetWebhookUrl.slice(1, -1);
-    }
-    if (googleSheetWebhookUrl.startsWith("'") && googleSheetWebhookUrl.endsWith("'")) {
-      googleSheetWebhookUrl = googleSheetWebhookUrl.slice(1, -1);
-    }
-
-    const fallbackUrl = "https://script.google.com/macros/s/AKfycbyoHXWwF5zDu6T9hvYmCQk6nDEdBFAVRpyz0ioSM1f-GwHC3WP0SH1s4zjirGM3Cdy7wQ/exec";
-    
-    if (!googleSheetWebhookUrl || !googleSheetWebhookUrl.startsWith("http")) {
-      googleSheetWebhookUrl = fallbackUrl;
-    }
-
-    if (googleSheetWebhookUrl) {
-      try {
-        console.log("Forwarding lead to Google Sheets webhook via URL:", googleSheetWebhookUrl);
-        const webhookResponse = await fetch(googleSheetWebhookUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newLead),
-        });
-        if (webhookResponse.ok) {
-          console.log("Successfully forwarded lead to Google Sheets!");
-        } else {
-          console.warn("Google Sheets webhook returned non-2xx status:", webhookResponse.status);
-        }
-      } catch (webhookErr) {
-        console.error("Failed to forward lead to Google Sheets Webhook:", webhookErr);
-      }
-    }
-
-    // Auto-append to Google Sheets if connected
-    try {
-      const configPath = path.join(process.cwd(), "sheets-config.json");
-      let fileExists = false;
-      try {
-        await fs.access(configPath);
-        fileExists = true;
-      } catch (_) {
-        // Safe to ignore, config does not exist
-      }
-
-      if (fileExists) {
-        const configData = await fs.readFile(configPath, "utf8");
-        const config = JSON.parse(configData);
-        if (config.spreadsheetId && config.accessToken) {
-          console.log("Automatically syncing new lead to connected Google Sheet...");
-          await appendLeadToSheet(newLead, config);
-          console.log("Lead synced to Google Sheets successfully!");
-        }
-      } else {
-        console.log("Google Sheets auto-sync: Not configured via OAuth yet. (Safe skip)");
-      }
-    } catch (e) {
-      console.log("Google Sheets auto-sync skipped or failed:", e);
-    }
-
-    console.log("New Lead Saved Successfully:", newLead);
-    res.json({ success: true, lead: newLead });
+    const lead = await saveAndForwardLead({ name, location, phone, email, lookingFor, cart });
+    console.log("New Lead Saved Successfully:", lead);
+    res.json({ success: true, lead });
   } catch (error: any) {
     console.error("Error saving lead:", error);
     res.status(500).json({ error: "Failed to submit lead.", details: error.message });
@@ -387,52 +511,163 @@ app.post("/api/chat", async (req, res) => {
 
     // If Gemini key is not configured, return a friendly mock consultant message
     if (!ai) {
-      const lastMsg = (messages[messages.length - 1]?.content || "").toLowerCase();
-      let mockReply = "Hello! I am XcelBot, your WebXcel AI Consultant. I'd love to help you build your custom Business Website, CRM, or AI Chatbot! To unlock my fully dynamic consulting capabilities, please add a valid API key in the Secrets panel.";
-      
-      if (lastMsg.includes("website") || lastMsg.includes("pricing") || lastMsg.includes("starter") || lastMsg.includes("presence")) {
-        mockReply = "Our ultra-premium Business Websites with custom 3D elements start at just ₹6,999 ($99), featuring modern responsive layouts, 100% hand-coded React/Tailwind (95+ PageSpeed score), and free domain setup support. Would you like a customized proposal?";
-      } else if (lastMsg.includes("crm") || lastMsg.includes("lead") || lastMsg.includes("pipeline")) {
-        mockReply = "Our Tailored CRM & Lead management solutions start at ₹14,999 ($185). They feature custom sales pipelines, visual history/forecast dashboards, role management, and real-time alerts. Shall we schedule a brief demo?";
-      } else if (lastMsg.includes("agent") || lastMsg.includes("bot") || lastMsg.includes("chat")) {
-        mockReply = "AI Agents & Chatbots are our absolute specialty! Starting at ₹14,999 ($185), we build intelligent agents trained on your business FAQs with bilingual support, WhatsApp Cloud API, and Telegram integrations. Would you like a custom chatbot demo?";
-      } else if (lastMsg.includes("dialer") || lastMsg.includes("outreach") || lastMsg.includes("call")) {
-        mockReply = "Our Call Dialer & Automated Outreach platform starts at ₹24,999 ($299). It integrates browser auto-dialing, voice broadcasting, Twilio gateways, and sequential email/SMS/WhatsApp campaigns. Shall we review a custom outreach flow?";
-      } else if (lastMsg.includes("video") || lastMsg.includes("editing") || lastMsg.includes("reel") || lastMsg.includes("short")) {
-        mockReply = "High-Impact Video Editing starts at ₹2,999 ($39) per edit. We craft professional vertical Reels/Shorts, corporate explainer videos, and social ads featuring custom grading, kinetic typography, and sound design. Do you have footage ready?";
-      } else if (lastMsg.includes("app") || lastMsg.includes("mobile") || lastMsg.includes("software") || lastMsg.includes("native") || lastMsg.includes("flutter")) {
-        mockReply = "Custom Software & Mobile App development starts at ₹34,999 ($429) using React Native or Flutter. We engineer cross-platform packages with cloud database sync (Postgres/Firestore), role control panels, and push alerts. What are your app features?";
-      } else if (lastMsg.includes("bundle") || lastMsg.includes("clinic") || lastMsg.includes("real estate") || lastMsg.includes("school") || lastMsg.includes("restaurant") || lastMsg.includes("gym") || lastMsg.includes("law")) {
-        mockReply = "We package specialized industry bundles starting at ₹14,999 to ₹29,999 ($185-$369). These combine custom website designs, intake CRM dashboards, calendars, and auto-reminders (e.g. Clinic, Real Estate, Gym, or School suites). Which industry are you in?";
-      } else if (lastMsg.includes("fiverr") || lastMsg.includes("upwork") || lastMsg.includes("freelance") || lastMsg.includes("commission") || lastMsg.includes("markup") || lastMsg.includes("middleman") || lastMsg.includes("direct")) {
-        mockReply = "By working directly with WEBXcel instead of freelance portals like Fiverr or Upwork, you save 20%+ in middleman commissions! We offer a 30-day post-launch revisions SLA, direct founder contact (WhatsApp/Calls with Ujjwal & Raj), and 100% hand-coded React platforms with full IP ownership handover. Shall we outline a direct proposal?";
+      const lastMsg = (messages[messages.length - 1]?.content || "").toLowerCase().trim();
+      let mockReply = "";
+
+      if (
+        lastMsg === "hi" || lastMsg === "hello" || lastMsg === "hey" || lastMsg === "greetings" || 
+        lastMsg.includes("anyone there") || lastMsg.includes("who is this")
+      ) {
+        mockReply = "Hello! I am XcelBot, your dedicated WEBXcel AI Advisor. 🚀\n\nI can help you brainstorm custom software architectures, estimate development timelines, or design high-converting automation workflows for your business.\n\nAre you looking to build a high-performance Website, a custom CRM database, an AI Chatbot, or an Automated Outreach system today?";
+      } else if (
+        lastMsg.includes("founder") || lastMsg.includes("who built") || lastMsg.includes("creator") || 
+        lastMsg.includes("ujjwal") || lastMsg.includes("raj") || lastMsg.includes("team") || 
+        lastMsg.includes("about") || lastMsg.includes("who are you") || lastMsg.includes("company")
+      ) {
+        mockReply = "WEBXcel was co-founded by two passionate systems engineers: Ujjwal Tiwari and Raj Dubey. 💻\n\n• Ujjwal Tiwari (Founder & Lead Engineer) is a Software Developer at Accenture, with a background supporting enterprise Microsoft systems and building ad monetization platforms.\n• Raj Dubey (CEO & Architect Engineer) is a seasoned technologist dedicated to scalable system design, secure data integrations, and long-term business growth.\n\nOur mission is to bring elite-grade, hand-coded software (React, Node, Express, Firebase) to growing businesses in India and the US at flat-rate pricing, without bloated corporate premiums. Would you like to consult directly with Ujjwal or Raj on WhatsApp?";
+      } else if (
+        lastMsg.includes("pricing") || lastMsg.includes("price") || lastMsg.includes("cost") || 
+        lastMsg.includes("how much") || lastMsg.includes("rate") || lastMsg.includes("budget") || 
+        lastMsg.includes("fee") || lastMsg.includes("plan") || lastMsg.includes("discount") || 
+        lastMsg.includes("negotiable")
+      ) {
+        mockReply = "At WEBXcel, we believe in complete pricing transparency with flat-rate quotes and absolutely zero hidden middleman commissions! 💎\n\nHere are our standard packages (all budgets are fully negotiable to suit your comfort):\n\n1️⃣ Starter Web Presence — ₹6,999 ($99)\n• Single-Page fully responsive design (100% custom React/Vite, no WP bloat)\n• Integrated interactive customer lead form with instant alerts\n• Google Maps setup, custom 3D animations, and free secure domain setup support\n\n2️⃣ Business Growth Pack — ₹14,999 ($185)\n• Up to 5 Pages custom layouts, multiple conversion landing pages\n• Bespoke lightweight Lead Tracking CRM Board with automated client profile panels\n• 14 Days delivery, plus 30 Days of dedicated post-launch SLA revision support\n\n3️⃣ Elite AI & CRM Suite — ₹39,999 ($495)\n• Bespoke multi-page business system + high-end custom CRM tailored to your sales workflows\n• On-site Gemini-powered AI support chatbot & Auto-dialer cold outreach campaign tool\n• WhatsApp Cloud API & Twilio sequences, 2 promotional explainer video edits, 90 Days SLA priority support\n\nWhich tier fits your business goals best? Remember, we can fully customize features and pricing to map directly to your budget!";
+      } else if (
+        lastMsg.includes("website") || lastMsg.includes("web") || lastMsg.includes("site") || 
+        lastMsg.includes("landing") || lastMsg.includes("page") || lastMsg.includes("react") || 
+        lastMsg.includes("wordpress") || lastMsg.includes("speed") || lastMsg.includes("lighthouse")
+      ) {
+        mockReply = "Our premium websites are 100% hand-coded using React, Vite, and Tailwind CSS. ⚡\n\nUnlike slow, generic WordPress themes that drag down your search rankings, our sites:\n• Achieve 95+ PageSpeed scores for immediate load times\n• Are completely immune to common WordPress plugin hacks and security exploits\n• Include custom 3D interactive animations & fluid transitions\n• Sync custom lead intakes instantly to Google Sheets within 12 hours\n\nOur Starter Web Presence is only ₹6,999 ($99), and our multi-page Business Growth Pack with an integrated CRM is ₹14,999 ($185). Shall we outline a layout proposal for your brand?";
+      } else if (
+        lastMsg.includes("crm") || lastMsg.includes("lead") || lastMsg.includes("pipeline") || 
+        lastMsg.includes("tracking") || lastMsg.includes("customer") || lastMsg.includes("sheets") || 
+        lastMsg.includes("database")
+      ) {
+        mockReply = "Custom CRM dashboards are a WEBXcel specialty! We build sales-boards tailored precisely to how your business handles customer inquiries. 📊\n\nOur custom CRM tools start at ₹14,999 ($185) and feature:\n• Interactive deal pipelines (drag-and-drop sales funnels)\n• Automated team history and lead forecast dashboards\n• Multi-user role management (Admins vs. Sales Executives)\n• Instant automatic backup synchronizations to Google Sheets\n• Direct automated notifications via Email and WhatsApp when a new lead enters\n\nThis keeps your follow-up times under 12 hours and prevents deals from falling through the cracks. Would you like a live CRM walk-through?";
+      } else if (
+        lastMsg.includes("agent") || lastMsg.includes("bot") || lastMsg.includes("chat") || 
+        lastMsg.includes("voice") || lastMsg.includes("receptionist") || lastMsg.includes("phone") || 
+        lastMsg.includes("whatsapp") || lastMsg.includes("telegram")
+      ) {
+        mockReply = "We develop and integrate advanced, customized AI Agents trained directly on your business data! 🤖\n\n• On-site Web Chatbots — Trained on your exact business FAQ directory to answer customer questions 24/7, qualify leads, and direct hot prospects straight to your sales team.\n• AI Phone Receptionists — Intelligent voice assistants that answer incoming calls, manage live appointment bookings, and handle general inquiries in multiple languages.\n• Messaging Automations — Native integrations with WhatsApp Cloud API and Telegram to automate outbound customer alerts, order confirmations, and marketing broadcasts.\n\nOur custom AI Agents start at ₹14,999 ($185). Would you like to see how we train these bots using raw business files?";
+      } else if (
+        lastMsg.includes("dialer") || lastMsg.includes("outreach") || lastMsg.includes("cold") || 
+        lastMsg.includes("call") || lastMsg.includes("sms") || lastMsg.includes("broadcast") || 
+        lastMsg.includes("twilio")
+      ) {
+        mockReply = "Boost your lead generation with our custom Call Dialer & Automated Outreach platforms! 📞\n\nStarting at ₹24,999 ($315), we build custom interfaces that integrate:\n• Twilio voice gateways and browser-based single-click outbound dialing\n• Pre-recorded interactive voice broadcasting and voicemail drops\n• Sequential, automated campaign workflows spanning WhatsApp, SMS, and Email\n• Real-time call logs, duration tracking, and disposition tagging\n\nThis system allows a single sales rep to handle 4x more outreach daily! Would you like to review an outreach sequence diagram?";
+      } else if (
+        lastMsg.includes("video") || lastMsg.includes("edit") || lastMsg.includes("reel") || 
+        lastMsg.includes("short") || lastMsg.includes("clip") || lastMsg.includes("grading") || 
+        lastMsg.includes("caption") || lastMsg.includes("typography")
+      ) {
+        mockReply = "Our high-impact Video Editing service starts at just ₹2,999 ($38) per video. 🎬\n\nWe edit engaging vertical Reels/Shorts, professional social media ads, and corporate explainer videos. Our process includes:\n• Advanced color grading, sound design, and custom transitions\n• Kinetic typography and engaging animated subtitles to retain viewer attention\n• Hook-focused editing styles proven to increase CTR and viral potential\n\nOur co-founder Raj Dubey personally oversees post-production to ensure premium brand-aligned visual assets. Do you have raw footage ready for editing?";
+      } else if (
+        lastMsg.includes("app") || lastMsg.includes("mobile") || lastMsg.includes("android") || 
+        lastMsg.includes("ios") || lastMsg.includes("flutter") || lastMsg.includes("native") || 
+        lastMsg.includes("software")
+      ) {
+        mockReply = "We develop robust, scalable cross-platform Mobile Apps using React Native or Flutter. 📱\n\nStarting at ₹34,999 ($440), our custom app builds feature:\n• Fluid, responsive user interfaces matching native iOS and Android design guidelines\n• Local-first offline database synchronization (via Firestore, SQLite, or PostgreSQL)\n• Real-time cloud database storage, cloud functions, and secure user authentication\n• Targeted push alerts and native device permissions (camera, location, gallery)\n\nWhat kind of mobile application or custom database utility are you brainstorming?";
+      } else if (
+        lastMsg.includes("fiverr") || lastMsg.includes("upwork") || lastMsg.includes("freelance") || 
+        lastMsg.includes("commission") || lastMsg.includes("middleman") || lastMsg.includes("direct") || 
+        lastMsg.includes("alternative")
+      ) {
+        mockReply = "Skip the middleman and work directly with elite engineers! Here is why WEBXcel beats Fiverr and Upwork freelancers hands down: 🏆\n\n• Zero Platform Markups — Freelance websites levy up to 20% in hidden platform commission fees on both client and developer. We pass those savings directly back to you!\n• 30-Day Revisions SLA — Fiverr automatically closes and archives your order just 3 days after delivery, leaving you stranded if bugs arise. We protect your investment with a 30-day post-launch support and content update window.\n• Seamless Founder Communication — Avoid frustrating timezone gaps and broken language translation barriers. You collaborate directly with Ujjwal and Raj on WhatsApp and Zoom.\n• 100% Code Ownership — We provide a clean GitHub repository and transfer full intellectual property rights so you own your code assets forever.\n\nShall we skip the middleman markups and schedule a brief direct call?";
+      } else if (
+        lastMsg.includes("guarantee") || lastMsg.includes("support") || lastMsg.includes("revision") || 
+        lastMsg.includes("security") || lastMsg.includes("backup") || lastMsg.includes("maintenance") || 
+        lastMsg.includes("sla")
+      ) {
+        mockReply = "Your software investment is fully protected by our comprehensive engineering guarantees: 🛡️\n\n• 30-Day SLA Support — Enjoy peace of mind with 30 days of free bug patching, performance optimization, and content modifications after deployment.\n• Code Asset Ownership — Unlike agencies that keep you dependent on proprietary platforms, we deliver full source code ownership with no monthly lockup licensing fees.\n• Server & Security Audits — All apps include secure HTTPS/SSL setups, daily automated database backup scripts, and cross-site scripting guards.\n\nWe provide the enterprise-level support of Accenture software engineers (which our founder Ujjwal Tiwari is!) but with the speed and flexibility of a dedicated boutique agency. Do you have any specific security questions?";
+      } else if (
+        lastMsg.includes("bundle") || lastMsg.includes("pack") || lastMsg.includes("clinic") || 
+        lastMsg.includes("real estate") || lastMsg.includes("restaurant") || lastMsg.includes("school") || 
+        lastMsg.includes("gym") || lastMsg.includes("fitness") || lastMsg.includes("law") || 
+        lastMsg.includes("attorney") || lastMsg.includes("industrial")
+      ) {
+        mockReply = "We offer tailored, pre-packaged industry suites starting at ₹14,999 to ₹29,999 ($185-$369). These packages integrate our core services into highly efficient, industry-specific workflows: 💼\n\n• Clinic & Doctor Pack: Professional medical website, online calendar bookings scheduler, and automated appointment reminders on WhatsApp.\n• Real Estate Growth Suite: Modern property listing catalog, intake sales board CRM, and lead capture pipelines.\n• Restaurant & Cafe Suite: Tableside self-ordering web apps, POS dashboard, and contactless QR code menus.\n• School & Academy ERP: Student databases, attendance monitors, billing registers, and administrative logs.\n• Gym & Fitness Studio Pack: Membership tracking cards, schedule boards, and automatic subscription alerts.\n\nWhich industry sector is your business in, and how can we streamline your operations today?";
+      } else {
+        mockReply = "Hello! I am XcelBot, your WebXcel AI Consultant. I'd love to help you build your custom Business Website, CRM, or AI Chatbot! 🚀\n\nTo give you a precise proposal, could you share a bit more about:\n1️⃣ What is your primary business or industry?\n2️⃣ Which specific automation or feature would bring the most value to your team?\n3️⃣ Do you have a target launch timeline or custom budget in mind?\n\n(Remember, all our prices are 100% negotiable, and you get direct contact with our founders Ujjwal & Raj!)";
       }
-      
+
+      // Extract lead from conversation in the background (non-blocking)
+      setTimeout(async () => {
+        try {
+          const extractedLead = extractLeadViaRegex(messages);
+          if (extractedLead) {
+            const { name, phone, email, location, lookingFor } = extractedLead;
+            const isDup = await isDuplicateLead(phone, email);
+            if (!isDup) {
+              console.log("XcelBot collected new lead dynamically from mock chat, saving...");
+              await saveAndForwardLead({
+                name,
+                phone: phone || "Not provided",
+                email: email || "Not provided",
+                location: location || "Collected via XcelBot Mock Chat",
+                lookingFor: lookingFor || "AI Consultant Mock Lead"
+              });
+              console.log("XcelBot dynamic mock lead saved and synced!");
+            }
+          }
+        } catch (e) {
+          console.error("Background mock lead extraction failed:", e);
+        }
+      }, 0);
+
       res.json({ text: mockReply });
       return;
     }
 
-    const systemInstruction = `You are 'XcelBot', the elite, ultra-efficient Virtual AI Consultant for WEBXcel, an premium software development, video editing, and AI automation agency.
-Your goal is to consult businesses, explain why WEBXcel's hand-coded custom React/Tailwind sites beat WordPress templates, recommend services, and offer custom estimates.
+    const systemInstruction = `You are 'XcelBot', the elite, ultra-efficient Virtual AI Consultant for WEBXcel, a premium software development, video editing, and AI automation agency.
+Your goal is to consult businesses, explain why WEBXcel's hand-coded custom React/Tailwind sites beat WordPress templates, recommend our services, and offer custom estimates.
 
-WEBXcel Official Services & Data (Trained Context):
-- Business Website Development: Starts at ₹5,999 to ₹6,999 ($75-$85). 100% hand-coded React & Tailwind (95+ Google PageSpeed score), stunning 3D animations, SEO-optimized, free hosting support.
-- Tailored CRM Creation: Starts at ₹14,999 ($185). Custom sales pipelines, history/forecast dashboard, role management (Admins/Execs), lead databases, automated alerts.
-- AI Agents & Chatbots: Starts at ₹14,999 ($185). Advanced virtual LLM agents, custom-trained FAQ knowledge bases, bilingual support, WhatsApp & Telegram Cloud API integration.
-- Call Dialer & Automated Outreach: Starts at ₹24,999 ($315). Browser auto-dialer, voice broadcasting, sequential campaigns (WhatsApp/SMS/Email), Twilio gateway integration.
-- High-Impact Video Editing: Starts at ₹2,999 ($38). Vertical Reels/Shorts, professional grading, transitions, kinetic subtitles.
-- Software & Mobile App Development: Starts at ₹34,999 ($440). Cross-platform React Native or Flutter, offline sync databases (Firestore/PostgreSQL), push notifications.
-- Pre-packaged Industry Bundles: Starts at ₹14,999 to ₹29,999 ($185-$369). Clinic & Doctor Pack, Real Estate Growth, Restaurant & Cafe, School & Academy, Gym & Fitness Studio, Law Firm & Attorney, Manufacturing & Supply packages.
-- Direct Advantage vs Fiverr/Upwork: 0% platform markup fees (saving 20%+ in commission), 30 days of post-launch revision SLA support, 100% IP codebase ownership handover, and direct WhatsApp communication line to founders (Ujjwal & Raj).
+CO-FOUNDERS & TEAM PROFILE:
+- Ujjwal Tiwari: Founder & Lead Engineer. Software Developer at Accenture, with a background supporting enterprise Microsoft systems and building high-traffic ad monetization platforms. Expert in custom high-speed frontend and secure backend architecture.
+- Raj Dubey: Co-founder, CEO, & Architect Engineer. Scalable digital experiences developer focused on custom innovation, secure integrations, and long-term business performance.
+
+WEBXcel OFFICIAL PLANS & PRICING (Trained Context):
+1. Starter Web Presence — ₹6,999 ($99)
+   - Single-Page fully responsive design (100% custom React/Vite, no WP bloat/plugins, loads in < 1s)
+   - Integrated interactive customer lead form with direct email/WhatsApp alerts
+   - Google Maps placement, custom 3D animations, free secure domain setup support, 7 days delivery timeline.
+2. Business Growth Pack — ₹14,999 ($185)
+   - Up to 5 Pages custom layouts, multiple conversion landing pages
+   - Bespoke lightweight Lead Tracking CRM Board with automated client profile panels
+   - 14 Days rapid delivery, plus 30 Days of dedicated post-launch SLA revision support.
+3. Elite AI & CRM Suite — ₹39,999 ($495)
+   - Bespoke multi-page business system + high-end custom CRM tailored to sales workflows
+   - On-site Gemini-powered AI support chatbot & Auto-dialer cold outreach campaign tool
+   - WhatsApp Cloud API & Twilio sequences, 2 corporate explainer video edits, 90 Days SLA priority support.
+
+CUSTOM SERVICES CATALOG:
+- Website Development: Hand-coded React + Vite + Tailwind CSS (95+ Google PageSpeed score, zero WP security exploits).
+- Custom CRM Boards: Drag-and-drop sales funnels, role-based controls (Admins vs. Sales Executives), instant automatic backups to Google Sheets.
+- AI Agents & Chatbots: Trained on custom business FAQ, AI voice phone receptionists (manage bookings, 24/7 call answering), WhatsApp/Telegram API integrations.
+- Call Dialer & Automated Outreach: Twilio gateways, browser-based click-to-dial, voice broadcasting, sequential SMS/WhatsApp/Email campaign loops.
+- High-Impact Video Editing: Vertical Reels/Shorts, corporate explainers, color grading, kinetic typography, hook-focused editing. Starts at ₹2,999 ($38) per edit.
+- Cross-Platform Mobile Apps: React Native or Flutter, local-first offline sync (Firestore/Postgres), push alerts. Starts at ₹34,999 ($440).
+
+THE DIRECT ADVANTAGE vs FREELANCE PORTALS (Fiverr / Upwork):
+- Save 20%+ in Middleman Fees: We charge raw engineering fees with 0% platform markups.
+- 30-Day Revisions Guarantee: Fiverr auto-closes and archives orders after 3 days. We guarantee 30 days of active post-launch SLA support, modifications, and bug patching.
+- Direct Founder Access: Avoid communication gaps. Clients collaborate directly with founders Ujjwal & Raj on WhatsApp and Zoom.
+- 100% Code Asset Ownership: We hand over the entire clean GitHub repository with full IP rights.
+
+PRE-PACKAGED INDUSTRY BUNDLES (₹14,999 - ₹29,999 / $185 - $369):
+- Clinic & Doctor Pack: Medical web portal + scheduling calendar + WhatsApp automated alerts.
+- Real Estate Growth Pack: Listing catalog + sales CRM board + client profiles directory.
+- Restaurant & Cafe Pack: Tableside ordering web app + QR menus + cashier POS dashboard.
+- School & Academy Suite: ERP records + student directories + parent app sync + fee collections.
+- Gym & Fitness Studio Pack: Membership tracker + scheduling boards + automated alerts.
 
 CRITICAL DISCOVERY TERMS:
-- *PRICES ARE NEGOTIABLE* - ALWAYS emphasize that all prices are negotiable and custom budget options can be customized for client comfort.
-- Instantly syncs leads with our Google Sheets database so team members can contact them within 12 hours.
+- *PRICES ARE NEGOTIABLE*: Emphasize that all packages are negotiable and we can fully customize features and pricing to map directly to the client's budget.
+- Automatic Sync: All client lead intakes sync instantly with our secure Google Sheets database so team members follow up within 12 hours.
 
-STRICT CONCISENESS & TOKEN-SAVING RULES:
-- Keep answers extremely crisp, clear, and direct. Avoid repeating greetings or outputting generic conversational fluff.
-- STICK TO A MAXIMUM of 1-2 short bullet points or sentences (Strictly keep output under 100 tokens).
-- Always speak of clear business ROI, automated lead intake, and revenue growth.
+STRICT CONCISENESS & CONVERSATIONAL RULES:
+- Keep answers extremely crisp, helpful, and highly direct.
+- Never output dry code or generic conversational fluff.
 - End with exactly ONE clear, action-oriented question to guide the user to a custom quote estimate or booking a WhatsApp call.`;
 
     // Map frontend messages format to Gemini contents
@@ -469,7 +704,7 @@ STRICT CONCISENESS & TOKEN-SAVING RULES:
 
     let response;
     let lastError: any = null;
-    const modelsToTry = ["gemini-2.0-flash", "gemini-2.0-flash-lite"];
+    const modelsToTry = ["gemini-3.5-flash", "gemini-3.1-flash-lite"];
 
     for (const modelName of modelsToTry) {
       let attempts = 0;
@@ -507,6 +742,30 @@ STRICT CONCISENESS & TOKEN-SAVING RULES:
     if (!response) {
       throw lastError || new Error("Failed to generate response after trying multiple models.");
     }
+
+    // Extract lead from conversation in the background (non-blocking)
+    setTimeout(async () => {
+      try {
+        const extractedLead = await extractLeadFromConversation(messages);
+        if (extractedLead) {
+          const { name, phone, email, location, lookingFor } = extractedLead;
+          const isDup = await isDuplicateLead(phone, email);
+          if (!isDup) {
+            console.log("XcelBot collected new lead dynamically from Gemini chat, saving...");
+            await saveAndForwardLead({
+              name,
+              phone: phone || "Not provided",
+              email: email || "Not provided",
+              location: location || "Collected via XcelBot Gemini Chat",
+              lookingFor: lookingFor || "AI Consultant Gemini Lead"
+            });
+            console.log("XcelBot dynamic Gemini lead saved and synced!");
+          }
+        }
+      } catch (e) {
+        console.error("Background Gemini lead extraction failed:", e);
+      }
+    }, 0);
 
     res.json({ text: response.text });
   } catch (error: any) {
@@ -591,6 +850,96 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
           ]
         }
       ]);
+    } else if (pathname === "/services/ai-agents-chatbots" || pathname === "/services/ai-agents") {
+      title = "Custom AI Agents & Intelligent Chatbots Development | WEBXcel";
+      description = "Supercharge your business efficiency and customer support. WEBXcel builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.";
+      keywords += ", AI chatbot development, custom AI agents, automated voice receptionists, WhatsApp AI bots, lead qualification AI, custom LLM solutions, business automation";
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Custom AI Agents & Intelligent Chatbots Development",
+        "serviceType": "AI Automation and Agentic Systems",
+        "url": pageUrl,
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "WEBXcel",
+          "url": baseUrl,
+          "logo": imageUrl
+        },
+        "description": "Bespoke artificial intelligence solutions, virtual customer service chatbots, conversational agents, and automated pipeline integration tailored to small and medium enterprises."
+      });
+    } else if (pathname === "/services/web-development") {
+      title = "High-Speed Custom React & Tailwind Web Development | WEBXcel";
+      description = "Get a lightning-fast, premium hand-coded website with zero platform lock-in. WEBXcel designs and engineers fully optimized React portals and custom business websites.";
+      keywords += ", custom website development, React website agency India, hand-coded business websites, fast loading sites, Tailwind CSS web design, high converting landing pages";
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "High-Speed Custom React & Tailwind Web Development",
+        "serviceType": "Web Development Services",
+        "url": pageUrl,
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "WEBXcel",
+          "url": baseUrl,
+          "logo": imageUrl
+        },
+        "description": "High-performance business websites built with hand-coded React, Vite, and Tailwind CSS. Clean, fully responsive interfaces with zero platform fees or page builder delays."
+      });
+    } else if (pathname === "/services/crm") {
+      title = "Tailored CRM & Sales Pipeline Dashboard Development | WEBXcel";
+      description = "Stop fighting Excel spreadsheets. Get a customized, secure CRM database panel built specifically for your sales workflows and lead pipeline tracking.";
+      keywords += ", custom CRM development, sales pipeline dashboard, client tracking database, lead management CRM, custom sales board, business workflow automation";
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Tailored CRM & Sales Pipeline Dashboard Development",
+        "serviceType": "Customer Relationship Management Systems",
+        "url": pageUrl,
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "WEBXcel",
+          "url": baseUrl,
+          "logo": imageUrl
+        },
+        "description": "Custom customer relationship management dashboards, pipeline trackers, user logs, and automated notification setups built direct to your team requirements."
+      });
+    } else if (pathname === "/services/software-development") {
+      title = "Bespoke Custom Software & Enterprise ERP Development | WEBXcel";
+      description = "Automate manual operations with powerful, lightweight custom software. WEBXcel engineers custom ERP systems, HR portals, payroll engines, and inventory management suites.";
+      keywords += ", custom software development company, bespoke ERP systems, school ERP Gurugram, clinic management software, inventory management database, restaurant POS software";
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Bespoke Custom Software & Enterprise ERP Development",
+        "serviceType": "Bespoke Software Engineering",
+        "url": pageUrl,
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "WEBXcel",
+          "url": baseUrl,
+          "logo": imageUrl
+        },
+        "description": "Bespoke application systems, secure inventory checkers, school ERP software, clinic directories, and customized workflow automation panels."
+      });
+    } else if (pathname === "/services/mobile-app-development") {
+      title = "Cross-Platform iOS & Android Mobile App Development | WEBXcel";
+      description = "Turn your product concept into a premium, responsive cross-platform mobile app. WEBXcel builds fast, native-quality iOS and Android applications using React Native and Flutter.";
+      keywords += ", mobile app development India, React Native app agency, custom Android iOS apps, hybrid mobile development, cross platform app builders";
+      schemaJson = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Cross-Platform iOS & Android Mobile App Development",
+        "serviceType": "Mobile Application Engineering",
+        "url": pageUrl,
+        "provider": {
+          "@type": "ProfessionalService",
+          "name": "WEBXcel",
+          "url": baseUrl,
+          "logo": imageUrl
+        },
+        "description": "High-fidelity, responsive hybrid mobile apps designed and launched on Google Play Store and Apple App Store, featuring smooth offline support and real-time database integrations."
+      });
     } else if (pathname === "/fiverr-alternative") {
       title = "Fiverr Alternative: Elite Direct React Web Developers | WEBXcel";
       description = "Skip the Fiverr platform fees and middleman markups. Hire direct software engineers for custom React web design and database CRM development in the USA and India.";
@@ -825,6 +1174,37 @@ app.get("/sitemap.xml", (req, res) => {
     <lastmod>${currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <!-- Service Sub-Pages (High SEO Rank targets) -->
+  <url>
+    <loc>${baseUrl}/services/ai-agents-chatbots</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/services/web-development</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/services/crm</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/services/software-development</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/services/mobile-app-development</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
   <!-- Fiverr Comparison Page -->
   <url>

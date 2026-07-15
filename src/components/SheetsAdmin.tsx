@@ -9,6 +9,8 @@ import firebaseConfig from "../../firebase-applet-config.json";
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+const apiBase = (import.meta as any).env?.VITE_API_URL || "";
+
 export default function SheetsAdmin() {
   const [isOpen, setIsOpen] = useState(false);
   const [spreadsheetId, setSpreadsheetId] = useState("");
@@ -21,7 +23,7 @@ export default function SheetsAdmin() {
 
   // Fetch current Sheets Config from Server on load
   useEffect(() => {
-    fetch("/api/sheets/config")
+    fetch(`${apiBase}/api/sheets/config`)
       .then((res) => res.json())
       .then((data) => {
         if (data.spreadsheetId) {
@@ -51,7 +53,7 @@ export default function SheetsAdmin() {
       setUserEmail(result.user.email);
 
       // Now save config to server with token
-      const response = await fetch("/api/sheets/config", {
+      const response = await fetch(`${apiBase}/api/sheets/config`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -89,7 +91,7 @@ export default function SheetsAdmin() {
     try {
       // Fetch currently stored config or just submit SpreadsheetId.
       // If we don't have token, we just update Spreadsheet ID
-      const response = await fetch("/api/sheets/config", {
+      const response = await fetch(`${apiBase}/api/sheets/config`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -119,7 +121,7 @@ export default function SheetsAdmin() {
     setIsSyncing(true);
     setSyncStatus("Synchronizing current local database leads to Sheets...");
     try {
-      const res = await fetch("/api/sheets/sync-all", { method: "POST" });
+      const res = await fetch(`${apiBase}/api/sheets/sync-all`, { method: "POST" });
       const data = await res.json();
       if (res.ok) {
         setSyncStatus(`Sync Success! Added ${data.count} lead rows to spreadsheet.`);

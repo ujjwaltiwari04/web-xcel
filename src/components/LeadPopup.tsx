@@ -100,7 +100,8 @@ export default function LeadPopup({ currency }: LeadPopupProps) {
         ? `Cart Booking: ${cart.plan} [Total: ${cart.total}] | Addons: ${cart.addons.map(a => `${a.label} (${a.price})`).join(", ") || "None"}`
         : lookingFor;
 
-      const response = await fetch("/api/leads", {
+      const apiBase = (import.meta as any).env?.VITE_API_URL || "";
+      const response = await fetch(`${apiBase}/api/leads`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

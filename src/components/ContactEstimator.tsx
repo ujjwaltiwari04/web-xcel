@@ -194,7 +194,8 @@ export default function ContactEstimator({
         total: activeFormattedTotal
       };
 
-      const response = await fetch("/api/leads", {
+      const apiBase = (import.meta as any).env?.VITE_API_URL || "";
+      const response = await fetch(`${apiBase}/api/leads`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

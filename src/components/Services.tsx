@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Laptop, Cpu, Bot, Smartphone, Video, Code, CheckCircle, 
@@ -8,7 +8,6 @@ import {
   ShoppingBag, Check, Database, ShieldCheck, Wrench
 } from "lucide-react";
 import { Currency, formatCurrencyValue } from "../utils/currency";
-import WhyUs from "./WhyUs";
 import FAQ from "./FAQ";
 
 interface ServicesProps {
@@ -261,8 +260,36 @@ export default function Services({ onServiceSelect, currency }: ServicesProps) {
     },
   ];
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const pathname = window.location.pathname.replace(/^\/+|\/+$/g, "");
+    let match = null;
+    if (pathname === "services/ai-agents-chatbots" || pathname === "services/ai-agents") {
+      match = services.find((s) => s.id === "ai-agents");
+    } else if (pathname === "services/web-development") {
+      match = services.find((s) => s.id === "web-dev");
+    } else if (pathname === "services/crm") {
+      match = services.find((s) => s.id === "crm");
+    } else if (pathname === "services/software-development") {
+      match = services.find((s) => s.id === "custom-software");
+    } else if (pathname === "services/mobile-app-development") {
+      match = services.find((s) => s.id === "custom-software");
+    }
+
+    if (match) {
+      setSelectedService(match);
+      setTimeout(() => {
+        const el = document.getElementById("services");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 150);
+    }
+  }, []);
+
   return (
-    <section id="services" className="py-24 bg-transparent relative overflow-hidden border-b-4 border-black">
+    <>
+      <section id="services" className="py-24 bg-transparent relative overflow-hidden border-b-4 border-black">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -680,12 +707,10 @@ export default function Services({ onServiceSelect, currency }: ServicesProps) {
         )}
       </AnimatePresence>
 
-      {/* Why Us section integrated at the bottom of Services */}
-      <WhyUs />
+      </section>
 
       {/* Accordion FAQ block */}
       <FAQ />
-
-    </section>
+    </>
   );
 }
