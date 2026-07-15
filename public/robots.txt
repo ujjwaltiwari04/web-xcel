@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /sheets-config.json
+
+Sitemap: https://webxcel.co.in/sitemap.xml

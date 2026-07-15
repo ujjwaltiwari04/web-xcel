@@ -43,6 +43,7 @@ export default function Footer({ onPageChange, currency }: FooterProps) {
                 { id: "services", label: "Auto-Dialer outreach" },
                 { id: "services", label: "Creative Video Edits" },
                 { id: "fiverr-alternative", label: "Fiverr vs WEBXcel" },
+                { id: "blog", label: "Insights & Blog" },
               ].map((link, i) => (
                 <button
                   key={i}

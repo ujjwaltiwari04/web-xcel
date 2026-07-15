@@ -1,0 +1,28 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://web-xcel.onrender.com/api/:path*"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://web-xcel.onrender.com/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://web-xcel.onrender.com/robots.txt"
+    },
+    {
+      "source": "/(services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog|blog/.*)",
+      "destination": "https://web-xcel.onrender.com/:path*"
+    },
+    {
+      "source": "/",
+      "destination": "https://web-xcel.onrender.com/"
+    },
+    {
+      "source": "/((?!api|sitemap\\.xml|robots\\.txt|services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog|blog/.*).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

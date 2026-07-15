@@ -3,12 +3,21 @@ import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import fs from "fs/promises";
+import cors from "cors";
 
 dotenv.config();
 
 // Initialize Express
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Reflect origin back to support credentials & dynamic Vercel previews
+    callback(null, true);
+  },
+  credentials: true
+}));
 
 app.use(express.json());
 
@@ -513,57 +522,75 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
   try {
     let html = await fs.readFile(templatePath, "utf8");
     const pathname = req.path;
-    const host = req.get("host") || "webxcel.in";
-    const protocol = req.protocol === "https" || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+    const host = req.get("host") || "webxcel.co.in";
+    const protocol = host.includes("webxcel.co.in") || req.protocol === "https" || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
     const baseUrl = `${protocol}://${host}`;
+    const pageUrl = `${baseUrl}${pathname === "/" ? "" : pathname}`;
+    const imageUrl = `${baseUrl}/logo.webp`;
 
     // Default values (Home page)
-    let title = "WEBXcel | Custom Website Development, Tailored CRM & High-Impact Video Editing";
-    let description = "WEBXcel engineers high-performance, hand-coded business websites, tailored CRM dashboards, and professional video edits designed to unlock small enterprise potential. Zero templates, raw speed, maximum growth.";
-    let keywords = "Website Development, CRM Development, Video Editing, Software Developer, Web Design Agency, custom software, business automation, React developer, Accenture developer, CRM database, video post-production, SEO optimization, high-speed website, custom leads management, fiverr alternative, upwork alternative, hire developers USA, software agency India";
+    let title = "WEBXcel | Custom Websites, CRM, AI Agents & Business Automation";
+    let description = "WEBXcel builds hand-coded React websites, custom CRM dashboards, AI chatbots, booking systems, outreach automation, mobile apps, and high-impact video edits for growing businesses in India, the USA, and worldwide.";
+    let keywords = "custom website development India, React website agency, CRM development company, AI chatbot development, AI phone receptionist, business automation services, appointment booking system, WhatsApp automation, lead management CRM, custom software development, mobile app development, video editing agency, real estate website developer, clinic website development, restaurant POS software, school ERP development, Fiverr alternative developer, direct web developer";
     let schemaJson = "";
 
     if (pathname === "/services") {
-      title = "Services | High-Performance Hand-Coded Web Systems | WEBXcel";
-      description = "Explore our custom software engineering services starting at 6999 INR / 79 USD. We develop custom React sites, tailored CRM pipelines, conversational AI agents, and dynamic WhatsApp/outreach dialers.";
-      schemaJson = JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "serviceType": "Custom Software Development",
-        "provider": {
-          "@type": "LocalBusiness",
-          "name": "WEBXcel"
+      title = "Website, CRM, AI Agent & Automation Services | WEBXcel";
+      description = "Explore WEBXcel services: React business websites, tailored CRM systems, AI chatbots, AI phone receptionists, appointment booking, WhatsApp outreach, e-commerce, mobile apps, industry software, and video editing.";
+      keywords += ", website development services, custom CRM services, AI agent services, booking engine development, auto dialer software, e-commerce website development, clinic management software, real estate CRM, restaurant ordering system, law firm website, gym membership software";
+      schemaJson = JSON.stringify([
+        {
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "Custom Website, CRM, AI Agent and Automation Services",
+          "serviceType": "Custom Software Development",
+          "url": pageUrl,
+          "provider": {
+            "@type": "ProfessionalService",
+            "name": "WEBXcel",
+            "url": baseUrl,
+            "logo": imageUrl
+          },
+          "areaServed": [
+            { "@type": "Country", "name": "India" },
+            { "@type": "Country", "name": "United States" }
+          ],
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "WEBXcel Service Catalog",
+            "itemListElement": [
+              { "@type": "Offer", "name": "Business Website Development", "price": "6999", "priceCurrency": "INR" },
+              { "@type": "Offer", "name": "Tailored CRM Creation", "price": "14999", "priceCurrency": "INR" },
+              { "@type": "Offer", "name": "AI Agents and Chatbots", "price": "14999", "priceCurrency": "INR" },
+              { "@type": "Offer", "name": "Call Dialer and Automated Outreach", "price": "24999", "priceCurrency": "INR" },
+              { "@type": "Offer", "name": "High-Impact Video Editing", "price": "2999", "priceCurrency": "INR" },
+              { "@type": "Offer", "name": "Software and Mobile App Development", "price": "34999", "priceCurrency": "INR" }
+            ]
+          }
         },
-        "areaServed": [
-          { "@type": "Country", "name": "India" },
-          { "@type": "Country", "name": "United States" }
-        ],
-        "offers": {
-          "@type": "AggregateOffer",
-          "priceCurrency": "USD",
-          "lowPrice": "79",
-          "offers": [
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
             {
-              "@type": "Offer",
-              "name": "Business Website Development",
-              "price": "6999",
-              "priceCurrency": "INR"
+              "@type": "Question",
+              "name": "What services does WEBXcel offer?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "WEBXcel offers hand-coded business websites, custom CRM dashboards, AI chatbots, AI phone receptionists, booking systems, WhatsApp and email automation, auto-dialer workflows, mobile apps, e-commerce integrations, industry software bundles, and video editing."
+              }
             },
             {
-              "@type": "Offer",
-              "name": "Tailored CRM Creation",
-              "price": "14999",
-              "priceCurrency": "INR"
-            },
-            {
-              "@type": "Offer",
-              "name": "AI Agents & Chatbots",
-              "price": "14999",
-              "priceCurrency": "INR"
+              "@type": "Question",
+              "name": "Does WEBXcel build custom software without templates?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. WEBXcel builds custom React, Vite, and Tailwind systems with source-code ownership instead of locking clients into slow website builders or generic templates."
+              }
             }
           ]
         }
-      });
+      ]);
     } else if (pathname === "/fiverr-alternative") {
       title = "Fiverr Alternative: Elite Direct React Web Developers | WEBXcel";
       description = "Skip the Fiverr platform fees and middleman markups. Hire direct software engineers for custom React web design and database CRM development in the USA and India.";
@@ -576,7 +603,7 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
         "publisher": {
           "@type": "Organization",
           "name": "WEBXcel",
-          "url": "https://webxcel.in"
+          "url": "https://webxcel.co.in"
         }
       });
     } else if (pathname === "/portfolio") {
@@ -618,23 +645,124 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
     } else if (pathname === "/consultant") {
       title = "AI Consultant | Brainstorm Your Product Build | WEBXcel";
       description = "Talk directly with our conversational AI advisor to draft user flows, budget breakdowns, and technology suggestions for your custom project.";
-    } else {
-      // Home page JSON-LD
+    } else if (pathname === "/blog") {
+      title = "WEBXcel Blog | Insights on AI, Custom CRM & Web Development";
+      description = "Read WEBXcel's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.";
       schemaJson = JSON.stringify({
         "@context": "https://schema.org",
-        "@type": "ProfessionalService",
-        "name": "WEBXcel",
-        "url": "https://webxcel.in",
-        "image": "https://webxcel.in/assets/webxcel_banner.png",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Bengaluru",
-          "addressRegion": "Karnataka",
-          "addressCountry": "IN"
-        },
-        "description": "High-performance website development, custom CRM systems, database automation, and professional video editing. Crafted by Ujjwal Tiwari & Raj Dubey.",
-        "areaServed": ["IN", "US"]
+        "@type": "Blog",
+        "name": "WEBXcel Insights & Blog",
+        "description": "Read WEBXcel's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "WEBXcel",
+          "url": "https://webxcel.co.in"
+        }
       });
+    } else if (pathname.startsWith("/blog/")) {
+      const slug = pathname.substring(6);
+      const blogTitles: { [key: string]: string } = {
+        "how-ai-agents-save-time": "How AI Agents Can Save Businesses 100 Hours Every Month | WEBXcel",
+        "crm-vs-excel-growing-businesses": "CRM vs Excel: Which Should Growing Businesses Use? | WEBXcel",
+        "best-ai-chatbots-small-business": "Best AI Chatbots for Small Businesses (Self-Hosted vs SaaS) | WEBXcel",
+        "website-development-cost-india-2026": "Website Development Cost in India (2026): WordPress vs React | WEBXcel",
+        "top-10-ai-automation-tools": "Top 10 AI Automation Tools for Business Growth in 2026 | WEBXcel",
+      };
+      const blogDescs: { [key: string]: string } = {
+        "how-ai-agents-save-time": "Discover how custom AI agents can automate repetitive workflows, customer service, and lead triage to save your business over 100 hours every single month.",
+        "crm-vs-excel-growing-businesses": "Comparing CRM systems vs Excel spreadsheets for business growth. Learn about data security, lead automation, limits of sheets, and client pipelines.",
+        "best-ai-chatbots-small-business": "Reviewing the best AI chatbots for small businesses in 2026. Explore custom self-hosted LLM setups vs subscription-based bot builders.",
+        "website-development-cost-india-2026": "A comprehensive breakdown of website development cost in India for 2026. Contrast cheap template agencies vs premium hand-coded systems.",
+        "top-10-ai-automation-tools": "An expert curation of the top 10 AI automation tools for business operations in 2026, featuring integrations, CRM databases, and outreach.",
+      };
+      const blogAuthors: { [key: string]: string } = {
+        "how-ai-agents-save-time": "Ujjwal Tiwari",
+        "crm-vs-excel-growing-businesses": "Raj Dubey",
+        "best-ai-chatbots-small-business": "Ujjwal Tiwari",
+        "website-development-cost-india-2026": "Ujjwal Tiwari",
+        "top-10-ai-automation-tools": "Raj Dubey",
+      };
+      const blogDates: { [key: string]: string } = {
+        "how-ai-agents-save-time": "2026-07-12T00:00:00Z",
+        "crm-vs-excel-growing-businesses": "2026-07-08T00:00:00Z",
+        "best-ai-chatbots-small-business": "2026-06-28T00:00:00Z",
+        "website-development-cost-india-2026": "2026-05-15T00:00:00Z",
+        "top-10-ai-automation-tools": "2026-04-20T00:00:00Z",
+      };
+
+      if (blogTitles[slug]) {
+        title = blogTitles[slug];
+        description = blogDescs[slug];
+        schemaJson = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": blogTitles[slug],
+          "description": blogDescs[slug],
+          "datePublished": blogDates[slug],
+          "author": {
+            "@type": "Person",
+            "name": blogAuthors[slug]
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "WEBXcel",
+            "logo": {
+              "@type": "ImageObject",
+              "url": imageUrl
+            }
+          },
+          "mainEntityOfPage": pageUrl
+        });
+      } else {
+        title = "WEBXcel Blog | Insights on AI, Custom CRM & Web Development";
+        description = "Read WEBXcel's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.";
+      }
+    } else {
+      // Home page JSON-LD
+      schemaJson = JSON.stringify([
+        {
+          "@context": "https://schema.org",
+          "@type": "ProfessionalService",
+          "name": "WEBXcel",
+          "url": baseUrl,
+          "image": imageUrl,
+          "logo": imageUrl,
+          "telephone": "+919102702317",
+          "email": "rajdubeyyyy0.44@gmail.com",
+          "priceRange": "$$",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Gurugram",
+            "addressRegion": "Haryana",
+            "addressCountry": "IN"
+          },
+          "description": "High-performance website development, custom CRM systems, AI agents, booking engines, outreach automation, mobile apps, and professional video editing. Crafted by Ujjwal Tiwari and Raj Dubey.",
+          "areaServed": [
+            { "@type": "Country", "name": "India" },
+            { "@type": "Country", "name": "United States" }
+          ],
+          "knowsAbout": [
+            "React website development",
+            "custom CRM development",
+            "AI chatbot development",
+            "AI phone receptionist systems",
+            "appointment booking software",
+            "WhatsApp automation",
+            "mobile app development",
+            "video editing"
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "WEBXcel",
+          "url": baseUrl,
+          "potentialAction": {
+            "@type": "ContactAction",
+            "target": `${baseUrl}/estimator`
+          }
+        }
+      ]);
     }
 
     // Perform replacements
@@ -648,17 +776,19 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
     html = html.replace(/<meta\s+name="keywords"\s+content="[^"]*"\s*\/?>/i, `<meta name="keywords" content="${keywords}" />`);
     
     // 4. Replace Canonical Link
-    html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${baseUrl}${pathname === '/' ? '' : pathname}" />`);
+    html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${pageUrl}" />`);
     
     // 5. Replace Open Graph Tags
     html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${title}" />`);
     html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${description}" />`);
-    html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:url" content="${baseUrl}${pathname === '/' ? '' : pathname}" />`);
+    html = html.replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:url" content="${pageUrl}" />`);
+    html = html.replace(/<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:image" content="${imageUrl}" />`);
     
     // 6. Replace Twitter Tags
     html = html.replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${title}" />`);
     html = html.replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${description}" />`);
-    html = html.replace(/<meta\s+name="twitter:url"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:url" content="${baseUrl}${pathname === '/' ? '' : pathname}" />`);
+    html = html.replace(/<meta\s+name="twitter:url"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:url" content="${pageUrl}" />`);
+    html = html.replace(/<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:image" content="${imageUrl}" />`);
 
     // 7. Inject JSON-LD Schema (Replace first JSON-LD script block if it exists)
     if (schemaJson) {
@@ -675,8 +805,8 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
 
 // Dynamic Sitemap generator mapping all client-side pages and hashes
 app.get("/sitemap.xml", (req, res) => {
-  const host = req.get("host") || "webxcel.in";
-  const protocol = req.protocol === "https" || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+  const host = req.get("host") || "webxcel.co.in";
+  const protocol = host.includes("webxcel.co.in") || req.protocol === "https" || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
   const baseUrl = `${protocol}://${host}`;
   const currentDate = new Date().toISOString().split("T")[0];
 
@@ -724,6 +854,13 @@ app.get("/sitemap.xml", (req, res) => {
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
+  <!-- AI Consultant Quote Assistant -->
+  <url>
+    <loc>${baseUrl}/consultant</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
   <!-- About Founders Profile Journey -->
   <url>
     <loc>${baseUrl}/about</loc>
@@ -731,7 +868,46 @@ app.get("/sitemap.xml", (req, res) => {
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <!-- Blog Listing Page -->
+  <url>
+    <loc>${baseUrl}/blog</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- Blog Posts -->
+  <url>
+    <loc>${baseUrl}/blog/how-ai-agents-save-time</loc>
+    <lastmod>2026-07-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/blog/crm-vs-excel-growing-businesses</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/blog/best-ai-chatbots-small-business</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/blog/website-development-cost-india-2026</loc>
+    <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/blog/top-10-ai-automation-tools</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>`;
+
 
   res.header("Content-Type", "application/xml");
   res.send(xml);
@@ -739,8 +915,8 @@ app.get("/sitemap.xml", (req, res) => {
 
 // Search Engine Bot Guidelines
 app.get("/robots.txt", (req, res) => {
-  const host = req.get("host") || "webxcel.in";
-  const protocol = req.protocol === "https" || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
+  const host = req.get("host") || "webxcel.co.in";
+  const protocol = host.includes("webxcel.co.in") || req.protocol === "https" || req.headers["x-forwarded-proto"] === "https" ? "https" : "http";
   const baseUrl = `${protocol}://${host}`;
 
   const txt = `User-agent: *
