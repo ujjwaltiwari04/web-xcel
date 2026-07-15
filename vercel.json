@@ -13,15 +13,7 @@
       "destination": "https://web-xcel.onrender.com/robots.txt"
     },
     {
-      "source": "/(services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog|blog/.*)",
-      "destination": "https://web-xcel.onrender.com/:path*"
-    },
-    {
-      "source": "/",
-      "destination": "https://web-xcel.onrender.com/"
-    },
-    {
-      "source": "/((?!api|sitemap\\.xml|robots\\.txt|services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog|blog/.*).*)",
+      "source": "/((?!api|sitemap\\.xml|robots\\.txt).*)",
       "destination": "/index.html"
     }
   ]
