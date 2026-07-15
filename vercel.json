@@ -13,15 +13,51 @@
       "destination": "https://web-xcel.onrender.com/robots.txt"
     },
     {
-      "source": "/(services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog|blog/.*)",
-      "destination": "https://web-xcel.onrender.com/:path*"
+      "source": "/services",
+      "destination": "https://web-xcel.onrender.com/services"
+    },
+    {
+      "source": "/services/:path*",
+      "destination": "https://web-xcel.onrender.com/services/:path*"
+    },
+    {
+      "source": "/fiverr-alternative",
+      "destination": "https://web-xcel.onrender.com/fiverr-alternative"
+    },
+    {
+      "source": "/portfolio",
+      "destination": "https://web-xcel.onrender.com/portfolio"
+    },
+    {
+      "source": "/pricing",
+      "destination": "https://web-xcel.onrender.com/pricing"
+    },
+    {
+      "source": "/about",
+      "destination": "https://web-xcel.onrender.com/about"
+    },
+    {
+      "source": "/estimator",
+      "destination": "https://web-xcel.onrender.com/estimator"
+    },
+    {
+      "source": "/consultant",
+      "destination": "https://web-xcel.onrender.com/consultant"
+    },
+    {
+      "source": "/blog",
+      "destination": "https://web-xcel.onrender.com/blog"
+    },
+    {
+      "source": "/blog/:path*",
+      "destination": "https://web-xcel.onrender.com/blog/:path*"
     },
     {
       "source": "/",
       "destination": "https://web-xcel.onrender.com/"
     },
     {
-      "source": "/((?!api|sitemap\\.xml|robots\\.txt|services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog|blog/.*).*)",
+      "source": "/((?!api|sitemap\\.xml|robots\\.txt|services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog).*)",
       "destination": "/index.html"
     }
   ]
