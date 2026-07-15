@@ -5,6 +5,10 @@
       "destination": "https://web-xcel.onrender.com/api/:path*"
     },
     {
+      "source": "/assets/:path*",
+      "destination": "https://web-xcel.onrender.com/assets/:path*"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "https://web-xcel.onrender.com/sitemap.xml"
     },
@@ -57,7 +61,7 @@
       "destination": "https://web-xcel.onrender.com/"
     },
     {
-      "source": "/((?!api|sitemap\\.xml|robots\\.txt|services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog).*)",
+      "source": "/((?!api|assets|sitemap\\.xml|robots\\.txt|services|fiverr-alternative|portfolio|pricing|about|estimator|consultant|blog).*)",
       "destination": "/index.html"
     }
   ]
