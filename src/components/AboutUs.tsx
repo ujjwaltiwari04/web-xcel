@@ -13,7 +13,8 @@ import {
   TrendingUp, 
   Users, 
   Lightbulb, 
-  Layers 
+  Layers,
+  Mail
 } from "lucide-react";
 
 interface AboutUsProps {
@@ -42,14 +43,14 @@ export default function AboutUs({ onPageChange }: AboutUsProps) {
     },
     {
       year: "SUCCESS",
-      title: "Profiting & Launching WEBXcel",
-      desc: "Generating success via custom web assets and ad monetization, Ujjwal partners with his close friend and systems expert Raj Dubey to launch WEBXcel.",
+      title: "Profiting & Launching WEBXcel Tech Solutions",
+      desc: "Generating success via custom web assets and ad monetization, Ujjwal partners with his close friend and systems expert Raj Dubey to launch WEBXcel Tech Solutions.",
       color: "bg-emerald-400"
     },
     {
       year: "TODAY",
       title: "Lighthouse Standard Elite",
-      desc: "Now as software engineers at Accenture and systems specialists, Ujjwal and Raj lead WEBXcel to break down software barriers for small enterprises with raw native custom code.",
+      desc: "Now as software engineers at Accenture and systems specialists, Ujjwal and Raj lead WEBXcel Tech Solutions to break down software barriers for small enterprises with raw native custom code.",
       color: "bg-purple-400"
     }
   ];
@@ -69,7 +70,7 @@ export default function AboutUs({ onPageChange }: AboutUsProps) {
             that unlock your <span className="underline decoration-yellow-400 decoration-8 font-black text-[#3B82F6]">full potential</span>.
           </h1>
           <p className="text-sm sm:text-base text-zinc-700 font-bold leading-relaxed max-w-2xl">
-            Too often, small enterprises are locked out of high-tier custom software and smart systems due to bloated agency premiums. WEBXcel was born from a vision to level the playing field—replacing slow, template-driven designs with raw, elite custom code that drives actual business results.
+            Too often, small enterprises are locked out of high-tier custom software and smart systems due to bloated agency premiums. WEBXcel Tech Solutions was born from a vision to level the playing field—replacing slow, template-driven designs with raw, elite custom code that drives actual business results.
           </p>
         </div>
         
@@ -110,7 +111,7 @@ export default function AboutUs({ onPageChange }: AboutUsProps) {
                 My professional path took me to a global IT corporate powerhouse, serving Microsoft enterprise as a technical support specialist. It was an invaluable experience, but my core was always in direct, active problem-solving and custom engineering. I launched my own optimized web assets, generating strong monetization through ad networks. 
               </p>
               <p>
-                Following the success of these products, I partnered with Raj to form WEBXcel. We immediately secured two complex custom projects, including a bespoke CRM that transformed our client's operations. Eversince, it has been a journey of absolute focus. Today, while also serving as a software engineer at Accenture, I pour this enterprise rigor back into WEBXcel to build high-performance custom engines.
+                Following the success of these products, I partnered with Raj to form WEBXcel Tech Solutions. We immediately secured two complex custom projects, including a bespoke CRM that transformed our client's operations. Eversince, it has been a journey of absolute focus. Today, while also serving as a software engineer at Accenture, I pour this enterprise rigor back into WEBXcel Tech Solutions to build high-performance custom engines.
               </p>
             </div>
           </div>
@@ -142,16 +143,16 @@ export default function AboutUs({ onPageChange }: AboutUsProps) {
 
             <div className="space-y-4 text-xs font-semibold text-zinc-600 leading-relaxed">
               <p>
-                I’m Raj Dubey, CEO and Co-Founder of WEBXcel. I’m passionate about building technology that helps businesses grow. For me, web development or other digital services aren't just about creating attractive websites and tools—it’s about designing fast, secure, and scalable digital experiences that deliver real results. Every line of code I write is driven by innovation, precision, and the desire to create lasting value.
+                I’m Raj Dubey, CEO and Co-Founder of WEBXcel Tech Solutions. I’m passionate about building technology that helps businesses grow. For me, web development or other digital services aren't just about creating attractive websites and tools—it’s about designing fast, secure, and scalable digital experiences that deliver real results. Every line of code I write is driven by innovation, precision, and the desire to create lasting value.
               </p>
               <p>
-                WEBXcel represents my vision of what a modern web agency should be: transparent, innovative, and committed to quality. Every project is built with attention to detail, clean engineering, and a focus on long-term success rather than quick fixes.
+                WEBXcel Tech Solutions represents my vision of what a modern web agency should be: transparent, innovative, and committed to quality. Every project is built with attention to detail, clean engineering, and a focus on long-term success rather than quick fixes.
               </p>
               <p>
                 I believe every business, regardless of its size, deserves access to world-class technology. That’s why we’re constantly pushing ourselves to improve, learn, and deliver solutions that stand out in both design and performance.
               </p>
               <p>
-                My mindset has always been to aim higher than yesterday, embrace every challenge, and never settle for average. I want WEBXcel to become the first name businesses think of when they need exceptional web development and digital solutions.
+                My mindset has always been to aim higher than yesterday, embrace every challenge, and never settle for average. I want WEBXcel Tech Solutions to become the first name businesses think of when they need exceptional web development and digital solutions.
               </p>
             </div>
           </div>
@@ -164,6 +165,24 @@ export default function AboutUs({ onPageChange }: AboutUsProps) {
           </div>
         </div>
 
+      </div>
+
+      {/* Note about connecting with founders */}
+      <div className="bg-zinc-50 border-2 border-black p-4.5 rounded-2xl shadow-brutal-sm flex items-center justify-between gap-4">
+        <div className="flex items-center space-x-3 text-left">
+          <div className="w-8 h-8 rounded-lg bg-[#3B82F6] text-white border-2 border-black flex items-center justify-center shrink-0 shadow-[1.5px_1.5px_0px_#000000]">
+            <Mail className="w-4 h-4 stroke-[2.5]" />
+          </div>
+          <div>
+            <span className="block text-[10px] text-zinc-400 font-mono uppercase font-black">Direct Founder Channel</span>
+            <span className="text-xs font-bold text-slate-900">
+              Have a direct inquiry or partnership proposal? Connect with the founders at:{" "}
+              <a href="mailto:founder@webxcel.co.in" className="text-[#3B82F6] hover:underline font-black">
+                founder@webxcel.co.in
+              </a>
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* 3. The Timeline / Milestones */}

@@ -198,7 +198,7 @@ export default function Blog({ currency, onPageChange }: BlogProps) {
             For growing small businesses, these tools present a different challenge: **extreme complexity and bloat**. Salesforce requires expensive implementation consultants, and HubSpot’s pricing aggressively escalates from $20/month to $800/month as you add features and contacts.
           </p>
           <p>
-            <strong>The Solution:</strong> A custom-designed CRM pipeline built on high-performance frameworks. At WEBXcel, we create bespoke CRM panels starting at a one-time fee of just {formatCurrencyValue(14999, currency)}. You own 100% of the codebase, pay 0 monthly user license fees, and only have the exact fields, buttons, and notifications your business actually uses.
+            <strong>The Solution:</strong> A custom-designed CRM pipeline built on high-performance frameworks. At WEBXcel Tech Solutions, we create bespoke CRM panels starting at a one-time fee of just {formatCurrencyValue(14999, currency)}. You own 100% of the codebase, pay 0 monthly user license fees, and only have the exact fields, buttons, and notifications your business actually uses.
           </p>
 
           <div className="bg-yellow-50 border-4 border-black p-6 rounded-3xl shadow-brutal-sm my-8 text-left">
@@ -247,7 +247,7 @@ export default function Blog({ currency, onPageChange }: BlogProps) {
 
           <div className="bg-emerald-50 border-2 border-black p-5 rounded-2xl my-6">
             <h4 className="font-display font-black text-lg text-slate-900 mb-2 flex items-center gap-2">
-              <Bot className="w-5 h-5 text-emerald-600" /> SaaS Chatbot vs. Hand-Coded WebXcel Bot
+              <Bot className="w-5 h-5 text-emerald-600" /> SaaS Chatbot vs. Hand-Coded WEBXcel Tech Solutions Bot
             </h4>
             <div className="space-y-3 font-mono text-xs">
               <div className="flex justify-between border-b border-zinc-200 pb-1.5">
@@ -273,7 +273,7 @@ export default function Blog({ currency, onPageChange }: BlogProps) {
             If you only receive 5 inquiries a week, a basic WhatsApp business account with automated quick-replies is all you need.
           </p>
           <p>
-            But if you are running paid ads, handling booking requests, or qualifying leads, you should run a custom chatbot. At WEBXcel, we deploy tailored Gemini AI agents directly into your React client or WhatsApp Cloud API. We handle the data ingestion, fine-tuning, and system prompts, then deliver a completed asset with zero recurring platform markups.
+            But if you are running paid ads, handling booking requests, or qualifying leads, you should run a custom chatbot. At WEBXcel Tech Solutions, we deploy tailored Gemini AI agents directly into your React client or WhatsApp Cloud API. We handle the data ingestion, fine-tuning, and system prompts, then deliver a completed asset with zero recurring platform markups.
           </p>
 
           <div className="bg-yellow-50 border-4 border-black p-6 rounded-3xl shadow-brutal-sm my-8 text-left">
@@ -330,7 +330,7 @@ export default function Blog({ currency, onPageChange }: BlogProps) {
                   <tr className="border-b-2 border-black">
                     <th className="pb-2 font-black">Metric</th>
                     <th className="pb-2 font-black text-red-600">Cheap WordPress Site</th>
-                    <th className="pb-2 font-black text-emerald-600">WEBXcel React / Static Site</th>
+                    <th className="pb-2 font-black text-emerald-600">WEBXcel Tech Solutions React / Static Site</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200">
@@ -361,7 +361,7 @@ export default function Blog({ currency, onPageChange }: BlogProps) {
 
           <h3 className="font-display font-black text-xl text-slate-950 mt-6">Why Hand-Coded React Beats WordPress</h3>
           <p>
-            At WEBXcel, we don't use templates. We hand-code our web platforms in React, using styling frameworks like Tailwind CSS.
+            At WEBXcel Tech Solutions, we don't use templates. We hand-code our web platforms in React, using styling frameworks like Tailwind CSS.
           </p>
           <p>
             Because the pages compile directly to static HTML and JS, they load instantly (under 0.5 seconds). They can be hosted for free on global Edge networks (like Netlify, Vercel, or Firebase), saving you thousands in annual hosting. There is no WordPress database to hack, and you own 100% of the code assets forever.
@@ -418,7 +418,7 @@ export default function Blog({ currency, onPageChange }: BlogProps) {
 
           <h3 className="font-display font-black text-xl text-slate-950 mt-6">5. Twilio (Outreach Gateway)</h3>
           <p>
-            Twilio provides the raw telecommunication APIs to make automated calls, send SMS notifications, and sync WhatsApp pipelines. It is the core engine behind WEBXcel's custom outreach systems.
+            Twilio provides the raw telecommunication APIs to make automated calls, send SMS notifications, and sync WhatsApp pipelines. It is the core engine behind WEBXcel Tech Solutions' custom outreach systems.
           </p>
 
           <h3 className="font-display font-black text-xl text-slate-950 mt-6">6. Phantombuster / Clay (Lead Scraping & Enrichment)</h3>

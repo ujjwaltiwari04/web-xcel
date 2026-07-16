@@ -518,20 +518,20 @@ app.post("/api/chat", async (req, res) => {
         lastMsg === "hi" || lastMsg === "hello" || lastMsg === "hey" || lastMsg === "greetings" || 
         lastMsg.includes("anyone there") || lastMsg.includes("who is this")
       ) {
-        mockReply = "Hello! I am XcelBot, your dedicated WEBXcel AI Advisor. 🚀\n\nI can help you brainstorm custom software architectures, estimate development timelines, or design high-converting automation workflows for your business.\n\nAre you looking to build a high-performance Website, a custom CRM database, an AI Chatbot, or an Automated Outreach system today?";
+        mockReply = "Hello! I am XcelBot, your dedicated WEBXcel Tech Solutions AI Advisor. 🚀\n\nI can help you brainstorm custom software architectures, estimate development timelines, or design high-converting automation workflows for your business.\n\nAre you looking to build a high-performance Website, a custom CRM database, an AI Chatbot, or an Automated Outreach system today?";
       } else if (
         lastMsg.includes("founder") || lastMsg.includes("who built") || lastMsg.includes("creator") || 
         lastMsg.includes("ujjwal") || lastMsg.includes("raj") || lastMsg.includes("team") || 
         lastMsg.includes("about") || lastMsg.includes("who are you") || lastMsg.includes("company")
       ) {
-        mockReply = "WEBXcel was co-founded by two passionate systems engineers: Ujjwal Tiwari and Raj Dubey. 💻\n\n• Ujjwal Tiwari (Founder & Lead Engineer) is a Software Developer at Accenture, with a background supporting enterprise Microsoft systems and building ad monetization platforms.\n• Raj Dubey (CEO & Architect Engineer) is a seasoned technologist dedicated to scalable system design, secure data integrations, and long-term business growth.\n\nOur mission is to bring elite-grade, hand-coded software (React, Node, Express, Firebase) to growing businesses in India and the US at flat-rate pricing, without bloated corporate premiums. Would you like to consult directly with Ujjwal or Raj on WhatsApp?";
+        mockReply = "WEBXcel Tech Solutions was co-founded by two passionate systems engineers: Ujjwal Tiwari and Raj Dubey. 💻\n\n• Ujjwal Tiwari (Founder & Lead Engineer) is a Software Developer at Accenture, with a background supporting enterprise Microsoft systems and building ad monetization platforms.\n• Raj Dubey (CEO & Architect Engineer) is a seasoned technologist dedicated to scalable system design, secure data integrations, and long-term business growth.\n\nOur mission is to bring elite-grade, hand-coded software (React, Node, Express, Firebase) to growing businesses in India and the US at flat-rate pricing, without bloated corporate premiums. Would you like to consult directly with Ujjwal or Raj on WhatsApp?";
       } else if (
         lastMsg.includes("pricing") || lastMsg.includes("price") || lastMsg.includes("cost") || 
         lastMsg.includes("how much") || lastMsg.includes("rate") || lastMsg.includes("budget") || 
         lastMsg.includes("fee") || lastMsg.includes("plan") || lastMsg.includes("discount") || 
         lastMsg.includes("negotiable")
       ) {
-        mockReply = "At WEBXcel, we believe in complete pricing transparency with flat-rate quotes and absolutely zero hidden middleman commissions! 💎\n\nHere are our standard packages (all budgets are fully negotiable to suit your comfort):\n\n1️⃣ Starter Web Presence — ₹6,999 ($99)\n• Single-Page fully responsive design (100% custom React/Vite, no WP bloat)\n• Integrated interactive customer lead form with instant alerts\n• Google Maps setup, custom 3D animations, and free secure domain setup support\n\n2️⃣ Business Growth Pack — ₹14,999 ($185)\n• Up to 5 Pages custom layouts, multiple conversion landing pages\n• Bespoke lightweight Lead Tracking CRM Board with automated client profile panels\n• 14 Days delivery, plus 30 Days of dedicated post-launch SLA revision support\n\n3️⃣ Elite AI & CRM Suite — ₹39,999 ($495)\n• Bespoke multi-page business system + high-end custom CRM tailored to your sales workflows\n• On-site Gemini-powered AI support chatbot & Auto-dialer cold outreach campaign tool\n• WhatsApp Cloud API & Twilio sequences, 2 promotional explainer video edits, 90 Days SLA priority support\n\nWhich tier fits your business goals best? Remember, we can fully customize features and pricing to map directly to your budget!";
+        mockReply = "At WEBXcel Tech Solutions, we believe in complete pricing transparency with flat-rate quotes and absolutely zero hidden middleman commissions! 💎\n\nHere are our standard packages (all budgets are fully negotiable to suit your comfort):\n\n1️⃣ Starter Web Presence — ₹6,999 ($99)\n• Single-Page fully responsive design (100% custom React/Vite, no WP bloat)\n• Integrated interactive customer lead form with instant alerts\n• Google Maps setup, custom 3D animations, and free secure domain setup support\n\n2️⃣ Business Growth Pack — ₹14,999 ($185)\n• Up to 5 Pages custom layouts, multiple conversion landing pages\n• Bespoke lightweight Lead Tracking CRM Board with automated client profile panels\n• 14 Days delivery, plus 30 Days of dedicated post-launch SLA revision support\n\n3️⃣ Elite AI & CRM Suite — ₹39,999 ($495)\n• Bespoke multi-page business system + high-end custom CRM tailored to your sales workflows\n• On-site Gemini-powered AI support chatbot & Auto-dialer cold outreach campaign tool\n• WhatsApp Cloud API & Twilio sequences, 2 promotional explainer video edits, 90 Days SLA priority support\n\nWhich tier fits your business goals best? Remember, we can fully customize features and pricing to map directly to your budget!";
       } else if (
         lastMsg.includes("website") || lastMsg.includes("web") || lastMsg.includes("site") || 
         lastMsg.includes("landing") || lastMsg.includes("page") || lastMsg.includes("react") || 
@@ -543,7 +543,7 @@ app.post("/api/chat", async (req, res) => {
         lastMsg.includes("tracking") || lastMsg.includes("customer") || lastMsg.includes("sheets") || 
         lastMsg.includes("database")
       ) {
-        mockReply = "Custom CRM dashboards are a WEBXcel specialty! We build sales-boards tailored precisely to how your business handles customer inquiries. 📊\n\nOur custom CRM tools start at ₹14,999 ($185) and feature:\n• Interactive deal pipelines (drag-and-drop sales funnels)\n• Automated team history and lead forecast dashboards\n• Multi-user role management (Admins vs. Sales Executives)\n• Instant automatic backup synchronizations to Google Sheets\n• Direct automated notifications via Email and WhatsApp when a new lead enters\n\nThis keeps your follow-up times under 12 hours and prevents deals from falling through the cracks. Would you like a live CRM walk-through?";
+        mockReply = "Custom CRM dashboards are a WEBXcel Tech Solutions specialty! We build sales-boards tailored precisely to how your business handles customer inquiries. 📊\n\nOur custom CRM tools start at ₹14,999 ($185) and feature:\n• Interactive deal pipelines (drag-and-drop sales funnels)\n• Automated team history and lead forecast dashboards\n• Multi-user role management (Admins vs. Sales Executives)\n• Instant automatic backup synchronizations to Google Sheets\n• Direct automated notifications via Email and WhatsApp when a new lead enters\n\nThis keeps your follow-up times under 12 hours and prevents deals from falling through the cracks. Would you like a live CRM walk-through?";
       } else if (
         lastMsg.includes("agent") || lastMsg.includes("bot") || lastMsg.includes("chat") || 
         lastMsg.includes("voice") || lastMsg.includes("receptionist") || lastMsg.includes("phone") || 
@@ -573,7 +573,7 @@ app.post("/api/chat", async (req, res) => {
         lastMsg.includes("commission") || lastMsg.includes("middleman") || lastMsg.includes("direct") || 
         lastMsg.includes("alternative")
       ) {
-        mockReply = "Skip the middleman and work directly with elite engineers! Here is why WEBXcel beats Fiverr and Upwork freelancers hands down: 🏆\n\n• Zero Platform Markups — Freelance websites levy up to 20% in hidden platform commission fees on both client and developer. We pass those savings directly back to you!\n• 30-Day Revisions SLA — Fiverr automatically closes and archives your order just 3 days after delivery, leaving you stranded if bugs arise. We protect your investment with a 30-day post-launch support and content update window.\n• Seamless Founder Communication — Avoid frustrating timezone gaps and broken language translation barriers. You collaborate directly with Ujjwal and Raj on WhatsApp and Zoom.\n• 100% Code Ownership — We provide a clean GitHub repository and transfer full intellectual property rights so you own your code assets forever.\n\nShall we skip the middleman markups and schedule a brief direct call?";
+        mockReply = "Skip the middleman and work directly with elite engineers! Here is why WEBXcel Tech Solutions beats Fiverr and Upwork freelancers hands down: 🏆\n\n• Zero Platform Markups — Freelance websites levy up to 20% in hidden platform commission fees on both client and developer. We pass those savings directly back to you!\n• 30-Day Revisions SLA — Fiverr automatically closes and archives your order just 3 days after delivery, leaving you stranded if bugs arise. We protect your investment with a 30-day post-launch support and content update window.\n• Seamless Founder Communication — Avoid frustrating timezone gaps and broken language translation barriers. You collaborate directly with Ujjwal and Raj on WhatsApp and Zoom.\n• 100% Code Ownership — We provide a clean GitHub repository and transfer full intellectual property rights so you own your code assets forever.\n\nShall we skip the middleman markups and schedule a brief direct call?";
       } else if (
         lastMsg.includes("guarantee") || lastMsg.includes("support") || lastMsg.includes("revision") || 
         lastMsg.includes("security") || lastMsg.includes("backup") || lastMsg.includes("maintenance") || 
@@ -588,7 +588,7 @@ app.post("/api/chat", async (req, res) => {
       ) {
         mockReply = "We offer tailored, pre-packaged industry suites starting at ₹14,999 to ₹29,999 ($185-$369). These packages integrate our core services into highly efficient, industry-specific workflows: 💼\n\n• Clinic & Doctor Pack: Professional medical website, online calendar bookings scheduler, and automated appointment reminders on WhatsApp.\n• Real Estate Growth Suite: Modern property listing catalog, intake sales board CRM, and lead capture pipelines.\n• Restaurant & Cafe Suite: Tableside self-ordering web apps, POS dashboard, and contactless QR code menus.\n• School & Academy ERP: Student databases, attendance monitors, billing registers, and administrative logs.\n• Gym & Fitness Studio Pack: Membership tracking cards, schedule boards, and automatic subscription alerts.\n\nWhich industry sector is your business in, and how can we streamline your operations today?";
       } else {
-        mockReply = "Hello! I am XcelBot, your WebXcel AI Consultant. I'd love to help you build your custom Business Website, CRM, or AI Chatbot! 🚀\n\nTo give you a precise proposal, could you share a bit more about:\n1️⃣ What is your primary business or industry?\n2️⃣ Which specific automation or feature would bring the most value to your team?\n3️⃣ Do you have a target launch timeline or custom budget in mind?\n\n(Remember, all our prices are 100% negotiable, and you get direct contact with our founders Ujjwal & Raj!)";
+        mockReply = "Hello! I am XcelBot, your WEBXcel Tech Solutions AI Consultant. I'd love to help you build your custom Business Website, CRM, or AI Chatbot! 🚀\n\nTo give you a precise proposal, could you share a bit more about:\n1️⃣ What is your primary business or industry?\n2️⃣ Which specific automation or feature would bring the most value to your team?\n3️⃣ Do you have a target launch timeline or custom budget in mind?\n\n(Remember, all our prices are 100% negotiable, and you get direct contact with our founders Ujjwal & Raj!)";
       }
 
       // Extract lead from conversation in the background (non-blocking)
@@ -619,14 +619,14 @@ app.post("/api/chat", async (req, res) => {
       return;
     }
 
-    const systemInstruction = `You are 'XcelBot', the elite, ultra-efficient Virtual AI Consultant for WEBXcel, a premium software development, video editing, and AI automation agency.
-Your goal is to consult businesses, explain why WEBXcel's hand-coded custom React/Tailwind sites beat WordPress templates, recommend our services, and offer custom estimates.
+    const systemInstruction = `You are 'XcelBot', the elite, ultra-efficient Virtual AI Consultant for WEBXcel Tech Solutions, a premium software development, video editing, and AI automation agency.
+Your goal is to consult businesses, explain why WEBXcel Tech Solutions' hand-coded custom React/Tailwind sites beat WordPress templates, recommend our services, and offer custom estimates.
 
 CO-FOUNDERS & TEAM PROFILE:
 - Ujjwal Tiwari: Founder & Lead Engineer. Software Developer at Accenture, with a background supporting enterprise Microsoft systems and building high-traffic ad monetization platforms. Expert in custom high-speed frontend and secure backend architecture.
 - Raj Dubey: Co-founder, CEO, & Architect Engineer. Scalable digital experiences developer focused on custom innovation, secure integrations, and long-term business performance.
 
-WEBXcel OFFICIAL PLANS & PRICING (Trained Context):
+WEBXcel Tech Solutions OFFICIAL PLANS & PRICING (Trained Context):
 1. Starter Web Presence — ₹6,999 ($99)
    - Single-Page fully responsive design (100% custom React/Vite, no WP bloat/plugins, loads in < 1s)
    - Integrated interactive customer lead form with direct email/WhatsApp alerts
@@ -788,14 +788,14 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
     const imageUrl = `${baseUrl}/logo.webp`;
 
     // Default values (Home page)
-    let title = "WEBXcel | Custom Websites, CRM, AI Agents & Business Automation";
-    let description = "WEBXcel builds hand-coded React websites, custom CRM dashboards, AI chatbots, booking systems, outreach automation, mobile apps, and high-impact video edits for growing businesses in India, the USA, and worldwide.";
+    let title = "WEBXcel Tech Solutions | Custom Websites, CRM, AI Agents & Business Automation";
+    let description = "WEBXcel Tech Solutions builds hand-coded React websites, custom CRM dashboards, AI chatbots, booking systems, outreach automation, mobile apps, and high-impact video edits for growing businesses in India, the USA, and worldwide.";
     let keywords = "custom website development India, React website agency, CRM development company, AI chatbot development, AI phone receptionist, business automation services, appointment booking system, WhatsApp automation, lead management CRM, custom software development, mobile app development, video editing agency, real estate website developer, clinic website development, restaurant POS software, school ERP development, Fiverr alternative developer, direct web developer";
     let schemaJson = "";
 
     if (pathname === "/services") {
-      title = "Website, CRM, AI Agent & Automation Services | WEBXcel";
-      description = "Explore WEBXcel services: React business websites, tailored CRM systems, AI chatbots, AI phone receptionists, appointment booking, WhatsApp outreach, e-commerce, mobile apps, industry software, and video editing.";
+      title = "Website, CRM, AI Agent & Automation Services | WEBXcel Tech Solutions";
+      description = "Explore WEBXcel Tech Solutions services: React business websites, tailored CRM systems, AI chatbots, AI phone receptionists, appointment booking, WhatsApp outreach, e-commerce, mobile apps, industry software, and video editing.";
       keywords += ", website development services, custom CRM services, AI agent services, booking engine development, auto dialer software, e-commerce website development, clinic management software, real estate CRM, restaurant ordering system, law firm website, gym membership software";
       schemaJson = JSON.stringify([
         {
@@ -806,7 +806,7 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
           "url": pageUrl,
           "provider": {
             "@type": "ProfessionalService",
-            "name": "WEBXcel",
+            "name": "WEBXcel Tech Solutions",
             "url": baseUrl,
             "logo": imageUrl
           },
@@ -816,7 +816,7 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
           ],
           "hasOfferCatalog": {
             "@type": "OfferCatalog",
-            "name": "WEBXcel Service Catalog",
+            "name": "WEBXcel Tech Solutions Service Catalog",
             "itemListElement": [
               { "@type": "Offer", "name": "Business Website Development", "price": "6999", "priceCurrency": "INR" },
               { "@type": "Offer", "name": "Tailored CRM Creation", "price": "14999", "priceCurrency": "INR" },
@@ -833,26 +833,26 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
           "mainEntity": [
             {
               "@type": "Question",
-              "name": "What services does WEBXcel offer?",
+              "name": "What services does WEBXcel Tech Solutions offer?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "WEBXcel offers hand-coded business websites, custom CRM dashboards, AI chatbots, AI phone receptionists, booking systems, WhatsApp and email automation, auto-dialer workflows, mobile apps, e-commerce integrations, industry software bundles, and video editing."
+                "text": "WEBXcel Tech Solutions offers hand-coded business websites, custom CRM dashboards, AI chatbots, AI phone receptionists, booking systems, WhatsApp and email automation, auto-dialer workflows, mobile apps, e-commerce integrations, industry software bundles, and video editing."
               }
             },
             {
               "@type": "Question",
-              "name": "Does WEBXcel build custom software without templates?",
+              "name": "Does WEBXcel Tech Solutions build custom software without templates?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Yes. WEBXcel builds custom React, Vite, and Tailwind systems with source-code ownership instead of locking clients into slow website builders or generic templates."
+                "text": "Yes. WEBXcel Tech Solutions builds custom React, Vite, and Tailwind systems with source-code ownership instead of locking clients into slow website builders or generic templates."
               }
             }
           ]
         }
       ]);
     } else if (pathname === "/services/ai-agents-chatbots" || pathname === "/services/ai-agents") {
-      title = "Custom AI Agents & Intelligent Chatbots Development | WEBXcel";
-      description = "Supercharge your business efficiency and customer support. WEBXcel builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.";
+      title = "Custom AI Agents & Intelligent Chatbots Development | WEBXcel Tech Solutions";
+      description = "Supercharge your business efficiency and customer support. WEBXcel Tech Solutions builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.";
       keywords += ", AI chatbot development, custom AI agents, automated voice receptionists, WhatsApp AI bots, lead qualification AI, custom LLM solutions, business automation";
       schemaJson = JSON.stringify({
         "@context": "https://schema.org",
@@ -862,15 +862,15 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
         "url": pageUrl,
         "provider": {
           "@type": "ProfessionalService",
-          "name": "WEBXcel",
+          "name": "WEBXcel Tech Solutions",
           "url": baseUrl,
           "logo": imageUrl
         },
         "description": "Bespoke artificial intelligence solutions, virtual customer service chatbots, conversational agents, and automated pipeline integration tailored to small and medium enterprises."
       });
     } else if (pathname === "/services/web-development") {
-      title = "High-Speed Custom React & Tailwind Web Development | WEBXcel";
-      description = "Get a lightning-fast, premium hand-coded website with zero platform lock-in. WEBXcel designs and engineers fully optimized React portals and custom business websites.";
+      title = "High-Speed Custom React & Tailwind Web Development | WEBXcel Tech Solutions";
+      description = "Get a lightning-fast, premium hand-coded website with zero platform lock-in. WEBXcel Tech Solutions designs and engineers fully optimized React portals and custom business websites.";
       keywords += ", custom website development, React website agency India, hand-coded business websites, fast loading sites, Tailwind CSS web design, high converting landing pages";
       schemaJson = JSON.stringify({
         "@context": "https://schema.org",
@@ -880,14 +880,14 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
         "url": pageUrl,
         "provider": {
           "@type": "ProfessionalService",
-          "name": "WEBXcel",
+          "name": "WEBXcel Tech Solutions",
           "url": baseUrl,
           "logo": imageUrl
         },
         "description": "High-performance business websites built with hand-coded React, Vite, and Tailwind CSS. Clean, fully responsive interfaces with zero platform fees or page builder delays."
       });
     } else if (pathname === "/services/crm") {
-      title = "Tailored CRM & Sales Pipeline Dashboard Development | WEBXcel";
+      title = "Tailored CRM & Sales Pipeline Dashboard Development | WEBXcel Tech Solutions";
       description = "Stop fighting Excel spreadsheets. Get a customized, secure CRM database panel built specifically for your sales workflows and lead pipeline tracking.";
       keywords += ", custom CRM development, sales pipeline dashboard, client tracking database, lead management CRM, custom sales board, business workflow automation";
       schemaJson = JSON.stringify({
@@ -898,15 +898,15 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
         "url": pageUrl,
         "provider": {
           "@type": "ProfessionalService",
-          "name": "WEBXcel",
+          "name": "WEBXcel Tech Solutions",
           "url": baseUrl,
           "logo": imageUrl
         },
         "description": "Custom customer relationship management dashboards, pipeline trackers, user logs, and automated notification setups built direct to your team requirements."
       });
     } else if (pathname === "/services/software-development") {
-      title = "Bespoke Custom Software & Enterprise ERP Development | WEBXcel";
-      description = "Automate manual operations with powerful, lightweight custom software. WEBXcel engineers custom ERP systems, HR portals, payroll engines, and inventory management suites.";
+      title = "Bespoke Custom Software & Enterprise ERP Development | WEBXcel Tech Solutions";
+      description = "Automate manual operations with powerful, lightweight custom software. WEBXcel Tech Solutions engineers custom ERP systems, HR portals, payroll engines, and inventory management suites.";
       keywords += ", custom software development company, bespoke ERP systems, school ERP Gurugram, clinic management software, inventory management database, restaurant POS software";
       schemaJson = JSON.stringify({
         "@context": "https://schema.org",
@@ -916,15 +916,15 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
         "url": pageUrl,
         "provider": {
           "@type": "ProfessionalService",
-          "name": "WEBXcel",
+          "name": "WEBXcel Tech Solutions",
           "url": baseUrl,
           "logo": imageUrl
         },
         "description": "Bespoke application systems, secure inventory checkers, school ERP software, clinic directories, and customized workflow automation panels."
       });
     } else if (pathname === "/services/mobile-app-development") {
-      title = "Cross-Platform iOS & Android Mobile App Development | WEBXcel";
-      description = "Turn your product concept into a premium, responsive cross-platform mobile app. WEBXcel builds fast, native-quality iOS and Android applications using React Native and Flutter.";
+      title = "Cross-Platform iOS & Android Mobile App Development | WEBXcel Tech Solutions";
+      description = "Turn your product concept into a premium, responsive cross-platform mobile app. WEBXcel Tech Solutions builds fast, native-quality iOS and Android applications using React Native and Flutter.";
       keywords += ", mobile app development India, React Native app agency, custom Android iOS apps, hybrid mobile development, cross platform app builders";
       schemaJson = JSON.stringify({
         "@context": "https://schema.org",
@@ -934,14 +934,14 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
         "url": pageUrl,
         "provider": {
           "@type": "ProfessionalService",
-          "name": "WEBXcel",
+          "name": "WEBXcel Tech Solutions",
           "url": baseUrl,
           "logo": imageUrl
         },
         "description": "High-fidelity, responsive hybrid mobile apps designed and launched on Google Play Store and Apple App Store, featuring smooth offline support and real-time database integrations."
       });
     } else if (pathname === "/fiverr-alternative") {
-      title = "Fiverr Alternative: Elite Direct React Web Developers | WEBXcel";
+      title = "Fiverr Alternative: Elite Direct React Web Developers | WEBXcel Tech Solutions";
       description = "Skip the Fiverr platform fees and middleman markups. Hire direct software engineers for custom React web design and database CRM development in the USA and India.";
       keywords += ", fiverr alternative, freelance developer alternative, upwork alternative, hire react developer direct";
       schemaJson = JSON.stringify({
@@ -951,19 +951,19 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
         "description": "A comprehensive comparison between hiring custom developers directly vs using generic freelance platforms like Fiverr and Upwork.",
         "publisher": {
           "@type": "Organization",
-          "name": "WEBXcel",
+          "name": "WEBXcel Tech Solutions",
           "url": "https://webxcel.co.in"
         }
       });
     } else if (pathname === "/portfolio") {
-      title = "Our Portfolio | Production-Ready Projects | WEBXcel";
-      description = "Browse real production implementations, tailored enterprise dashboard screens, and customer platforms crafted with speed and clean code by WEBXcel.";
+      title = "Our Portfolio | Production-Ready Projects | WEBXcel Tech Solutions";
+      description = "Browse real production implementations, tailored enterprise dashboard screens, and customer platforms crafted with speed and clean code by WEBXcel Tech Solutions.";
     } else if (pathname === "/pricing") {
-      title = "Pricing | Flat Rates, Zero Hidden Commissions | WEBXcel";
+      title = "Pricing | Flat Rates, Zero Hidden Commissions | WEBXcel Tech Solutions";
       description = "Fair, flat-rate pricing. Build your custom system starting at 6999 INR / 79 USD with complete IP ownership and zero platform markups.";
     } else if (pathname === "/about") {
-      title = "About Us | Founding Story & Engineering Journey | WEBXcel";
-      description = "Meet Ujjwal Tiwari & Raj Dubey, founders of WEBXcel. Discover our self-taught coding background and our mission to provide high-quality engineering directly.";
+      title = "About Us | Founding Story & Engineering Journey | WEBXcel Tech Solutions";
+      description = "Meet Ujjwal Tiwari & Raj Dubey, founders of WEBXcel Tech Solutions. Discover our self-taught coding background and our mission to provide high-quality engineering directly.";
       schemaJson = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "AboutPage",
@@ -974,7 +974,7 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
             "jobTitle": "Co-founder & Lead Engineer",
             "worksFor": {
               "@type": "Organization",
-              "name": "WEBXcel"
+              "name": "WEBXcel Tech Solutions"
             }
           },
           {
@@ -983,39 +983,39 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
             "jobTitle": "Co-founder & Architect Engineer",
             "worksFor": {
               "@type": "Organization",
-              "name": "WEBXcel"
+              "name": "WEBXcel Tech Solutions"
             }
           }
         ]
       });
     } else if (pathname === "/estimator") {
-      title = "Quote Estimator | Calculate Custom Project Scope | WEBXcel";
+      title = "Quote Estimator | Calculate Custom Project Scope | WEBXcel Tech Solutions";
       description = "Use our instant cost estimator to build your spec online and secure direct developer pricing for React portals, CRM setups, and custom apps.";
     } else if (pathname === "/consultant") {
-      title = "AI Consultant | Brainstorm Your Product Build | WEBXcel";
+      title = "AI Consultant | Brainstorm Your Product Build | WEBXcel Tech Solutions";
       description = "Talk directly with our conversational AI advisor to draft user flows, budget breakdowns, and technology suggestions for your custom project.";
     } else if (pathname === "/blog") {
-      title = "WEBXcel Blog | Insights on AI, Custom CRM & Web Development";
-      description = "Read WEBXcel's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.";
+      title = "WEBXcel Tech Solutions Blog | Insights on AI, Custom CRM & Web Development";
+      description = "Read WEBXcel Tech Solutions's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.";
       schemaJson = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Blog",
-        "name": "WEBXcel Insights & Blog",
-        "description": "Read WEBXcel's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.",
+        "name": "WEBXcel Tech Solutions Insights & Blog",
+        "description": "Read WEBXcel Tech Solutions's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.",
         "publisher": {
           "@type": "Organization",
-          "name": "WEBXcel",
+          "name": "WEBXcel Tech Solutions",
           "url": "https://webxcel.co.in"
         }
       });
     } else if (pathname.startsWith("/blog/")) {
       const slug = pathname.substring(6);
       const blogTitles: { [key: string]: string } = {
-        "how-ai-agents-save-time": "How AI Agents Can Save Businesses 100 Hours Every Month | WEBXcel",
-        "crm-vs-excel-growing-businesses": "CRM vs Excel: Which Should Growing Businesses Use? | WEBXcel",
-        "best-ai-chatbots-small-business": "Best AI Chatbots for Small Businesses (Self-Hosted vs SaaS) | WEBXcel",
-        "website-development-cost-india-2026": "Website Development Cost in India (2026): WordPress vs React | WEBXcel",
-        "top-10-ai-automation-tools": "Top 10 AI Automation Tools for Business Growth in 2026 | WEBXcel",
+        "how-ai-agents-save-time": "How AI Agents Can Save Businesses 100 Hours Every Month | WEBXcel Tech Solutions",
+        "crm-vs-excel-growing-businesses": "CRM vs Excel: Which Should Growing Businesses Use? | WEBXcel Tech Solutions",
+        "best-ai-chatbots-small-business": "Best AI Chatbots for Small Businesses (Self-Hosted vs SaaS) | WEBXcel Tech Solutions",
+        "website-development-cost-india-2026": "Website Development Cost in India (2026): WordPress vs React | WEBXcel Tech Solutions",
+        "top-10-ai-automation-tools": "Top 10 AI Automation Tools for Business Growth in 2026 | WEBXcel Tech Solutions",
       };
       const blogDescs: { [key: string]: string } = {
         "how-ai-agents-save-time": "Discover how custom AI agents can automate repetitive workflows, customer service, and lead triage to save your business over 100 hours every single month.",
@@ -1054,7 +1054,7 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
           },
           "publisher": {
             "@type": "Organization",
-            "name": "WEBXcel",
+            "name": "WEBXcel Tech Solutions",
             "logo": {
               "@type": "ImageObject",
               "url": imageUrl
@@ -1072,12 +1072,12 @@ async function serveIndexWithSEO(req: express.Request, res: express.Response, te
         {
           "@context": "https://schema.org",
           "@type": "ProfessionalService",
-          "name": "WEBXcel",
+          "name": "WEBXcel Tech Solutions",
           "url": baseUrl,
           "image": imageUrl,
           "logo": imageUrl,
           "telephone": "+919102702317",
-          "email": "rajdubeyyyy0.44@gmail.com",
+          "email": "query@webxcel.co.in",
           "priceRange": "$$",
           "address": {
             "@type": "PostalAddress",

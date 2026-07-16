@@ -24,7 +24,7 @@ function SectionLoader() {
   const [step, setStep] = useState(0);
   const steps = [
     "COMPILING HAND-CODED REFRESH...",
-    "OPTIMIZING WEBXCEL ENGINES...",
+    "OPTIMIZING WEBXCEL TECH SOLUTIONS ENGINES...",
     "ASSEMBLING HIGH-SPEED LAYOUTS...",
     "TUNING COMPONENT PIPELINES...",
     "POLISHING BRAND EXPERIENCES..."
@@ -207,25 +207,25 @@ export default function App() {
   // SEO Metadata dynamic updater
   useEffect(() => {
     const titles: { [key: string]: string } = {
-      home: "WEBXcel | Custom Websites, CRM, AI Agents & Business Automation",
-      services: "Website, CRM, AI Agent & Automation Services | WEBXcel",
+      home: "WEBXcel Tech Solutions | Custom Websites, CRM, AI Agents & Business Automation",
+      services: "Website, CRM, AI Agent & Automation Services | WEBXcel Tech Solutions",
       consultant: "AI Consultant | Brainstorm Your Product Build",
       portfolio: "Our Portfolio | Production-Ready Projects",
       pricing: "Pricing | Flat Rates, Zero Hidden Commissions",
       estimator: "Quote Estimator | Calculate Custom Project Scope",
       about: "About Us | Founding Story & Engineering Journey",
-      "fiverr-alternative": "Fiverr Alternative: Elite Direct React Web Developers | WEBXcel",
+      "fiverr-alternative": "Fiverr Alternative: Elite Direct React Web Developers | WEBXcel Tech Solutions",
     };
 
     const descriptions: { [key: string]: string } = {
-      home: "WEBXcel builds hand-coded React websites, custom CRM dashboards, AI chatbots, booking systems, outreach automation, mobile apps, and high-impact video edits for growing businesses in India, the USA, and worldwide.",
-      services: "Explore WEBXcel services: React business websites, tailored CRM systems, AI chatbots, AI phone receptionists, appointment booking, WhatsApp outreach, e-commerce, mobile apps, industry software, and video editing.",
+      home: "WEBXcel Tech Solutions builds hand-coded React websites, custom CRM dashboards, AI chatbots, booking systems, outreach automation, mobile apps, and high-impact video edits for growing businesses in India, the USA, and worldwide.",
+      services: "Explore WEBXcel Tech Solutions services: React business websites, tailored CRM systems, AI chatbots, AI phone receptionists, appointment booking, WhatsApp outreach, e-commerce, mobile apps, industry software, and video editing.",
       consultant: "Chat with XcelBot, our dedicated AI consultant, to get instant pricing estimates and architecture suggestions for your software needs.",
       portfolio: "Browse our hand-coded software implementations, CRM admin dashboard setups, and digital platforms built for real-world business growth.",
       pricing: "Simple, honest, transparent prices with no host lockups. Calculate your build cost online and own your code assets forever.",
       estimator: "Use our interactive cost estimator to outline your custom website spec and secure the best direct rates.",
-      about: "Meet Ujjwal Tiwari & Raj Dubey, the team behind WEBXcel. Learn about our philosophy of custom, high-speed, performance-oriented coding.",
-      "fiverr-alternative": "Looking to hire a React developer on Fiverr or Upwork? Learn why businesses choose WEBXcel. Zero platform markups, direct founder communication, 100% custom code.",
+      about: "Meet Ujjwal Tiwari & Raj Dubey, the team behind WEBXcel Tech Solutions. Learn about our philosophy of custom, high-speed, performance-oriented coding.",
+      "fiverr-alternative": "Looking to hire a React developer on Fiverr or Upwork? Learn why businesses choose WEBXcel Tech Solutions. Zero platform markups, direct founder communication, 100% custom code.",
     };
 
     let title = titles[currentPage];
@@ -234,20 +234,20 @@ export default function App() {
     if (currentPage === "services") {
       const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
       const serviceTitles: { [key: string]: string } = {
-        "services/ai-agents-chatbots": "Custom AI Agents & Intelligent Chatbots Development | WEBXcel",
-        "services/ai-agents": "Custom AI Agents & Intelligent Chatbots Development | WEBXcel",
-        "services/web-development": "High-Speed Custom React & Tailwind Web Development | WEBXcel",
-        "services/crm": "Tailored CRM & Sales Pipeline Dashboard Development | WEBXcel",
-        "services/software-development": "Bespoke Custom Software & Enterprise ERP Development | WEBXcel",
-        "services/mobile-app-development": "Cross-Platform iOS & Android Mobile App Development | WEBXcel",
+        "services/ai-agents-chatbots": "Custom AI Agents & Intelligent Chatbots Development | WEBXcel Tech Solutions",
+        "services/ai-agents": "Custom AI Agents & Intelligent Chatbots Development | WEBXcel Tech Solutions",
+        "services/web-development": "High-Speed Custom React & Tailwind Web Development | WEBXcel Tech Solutions",
+        "services/crm": "Tailored CRM & Sales Pipeline Dashboard Development | WEBXcel Tech Solutions",
+        "services/software-development": "Bespoke Custom Software & Enterprise ERP Development | WEBXcel Tech Solutions",
+        "services/mobile-app-development": "Cross-Platform iOS & Android Mobile App Development | WEBXcel Tech Solutions",
       };
       const serviceDescs: { [key: string]: string } = {
-        "services/ai-agents-chatbots": "Supercharge your business efficiency and customer support. WEBXcel builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.",
-        "services/ai-agents": "Supercharge your business efficiency and customer support. WEBXcel builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.",
-        "services/web-development": "Get a lightning-fast, premium hand-coded website with zero platform lock-in. WEBXcel designs and engineers fully optimized React portals and custom business websites.",
+        "services/ai-agents-chatbots": "Supercharge your business efficiency and customer support. WEBXcel Tech Solutions builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.",
+        "services/ai-agents": "Supercharge your business efficiency and customer support. WEBXcel Tech Solutions builds custom AI chatbots, dynamic voice receptionists, and lead qualification flows that run 24/7.",
+        "services/web-development": "Get a lightning-fast, premium hand-coded website with zero platform lock-in. WEBXcel Tech Solutions designs and engineers fully optimized React portals and custom business websites.",
         "services/crm": "Stop fighting Excel spreadsheets. Get a customized, secure CRM database panel built specifically for your sales workflows and lead pipeline tracking.",
-        "services/software-development": "Automate manual operations with powerful, lightweight custom software. WEBXcel engineers custom ERP systems, HR portals, payroll engines, and inventory management suites.",
-        "services/mobile-app-development": "Turn your product concept into a premium, responsive cross-platform mobile app. WEBXcel builds fast, native-quality iOS and Android applications using React Native and Flutter.",
+        "services/software-development": "Automate manual operations with powerful, lightweight custom software. WEBXcel Tech Solutions engineers custom ERP systems, HR portals, payroll engines, and inventory management suites.",
+        "services/mobile-app-development": "Turn your product concept into a premium, responsive cross-platform mobile app. WEBXcel Tech Solutions builds fast, native-quality iOS and Android applications using React Native and Flutter.",
       };
       if (serviceTitles[path]) {
         title = serviceTitles[path];
@@ -262,11 +262,11 @@ export default function App() {
       if (path.startsWith("blog/")) {
         const slug = path.split("blog/")[1];
         const blogTitles: { [key: string]: string } = {
-          "how-ai-agents-save-time": "How AI Agents Can Save Businesses 100 Hours Every Month | WEBXcel",
-          "crm-vs-excel-growing-businesses": "CRM vs Excel: Which Should Growing Businesses Use? | WEBXcel",
-          "best-ai-chatbots-small-business": "Best AI Chatbots for Small Businesses (Self-Hosted vs SaaS) | WEBXcel",
-          "website-development-cost-india-2026": "Website Development Cost in India (2026): WordPress vs React | WEBXcel",
-          "top-10-ai-automation-tools": "Top 10 AI Automation Tools for Business Growth in 2026 | WEBXcel",
+          "how-ai-agents-save-time": "How AI Agents Can Save Businesses 100 Hours Every Month | WEBXcel Tech Solutions",
+          "crm-vs-excel-growing-businesses": "CRM vs Excel: Which Should Growing Businesses Use? | WEBXcel Tech Solutions",
+          "best-ai-chatbots-small-business": "Best AI Chatbots for Small Businesses (Self-Hosted vs SaaS) | WEBXcel Tech Solutions",
+          "website-development-cost-india-2026": "Website Development Cost in India (2026): WordPress vs React | WEBXcel Tech Solutions",
+          "top-10-ai-automation-tools": "Top 10 AI Automation Tools for Business Growth in 2026 | WEBXcel Tech Solutions",
         };
         const blogDescs: { [key: string]: string } = {
           "how-ai-agents-save-time": "Discover how custom AI agents can automate repetitive workflows, customer service, and lead triage to save your business over 100 hours every single month.",
@@ -278,16 +278,16 @@ export default function App() {
         if (blogTitles[slug]) {
           title = blogTitles[slug];
         } else {
-          title = "WEBXcel Blog | Insights on AI, Custom CRM & Web Development";
+          title = "WEBXcel Tech Solutions Blog | Insights on AI, Custom CRM & Web Development";
         }
         if (blogDescs[slug]) {
           description = blogDescs[slug];
         } else {
-          description = "Read WEBXcel's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.";
+          description = "Read WEBXcel Tech Solutions's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.";
         }
       } else {
-        title = "WEBXcel Blog | Insights on AI, Custom CRM & Web Development";
-        description = "Read WEBXcel's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.";
+        title = "WEBXcel Tech Solutions Blog | Insights on AI, Custom CRM & Web Development";
+        description = "Read WEBXcel Tech Solutions's latest articles and deep-dive comparisons on web speeds, custom database CRMs, Gemini AI agents, and direct software ROI.";
       }
     }
 

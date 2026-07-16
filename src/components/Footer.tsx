@@ -87,8 +87,8 @@ export default function Footer({ onPageChange, currency }: FooterProps) {
                 <Mail className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
                 <div>
                   <span className="block text-zinc-400 font-mono text-[9px] uppercase font-black">Direct Email</span>
-                  <a href="mailto:rajdubeyyyy0.44@gmail.com" className="hover:text-[#3B82F6] font-black text-slate-950">
-                    rajdubeyyyy0.44@gmail.com
+                  <a href="mailto:query@webxcel.co.in" className="hover:text-[#3B82F6] font-black text-slate-950">
+                    query@webxcel.co.in
                   </a>
                 </div>
               </div>
@@ -116,7 +116,7 @@ export default function Footer({ onPageChange, currency }: FooterProps) {
         {/* Footer Base bottom */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[10px] text-zinc-500 font-mono gap-4 font-bold">
           <div>
-            &copy; {new Date().getFullYear()} WEBXcel. All Rights Reserved.
+            &copy; {new Date().getFullYear()} WEBXcel Tech Solutions. All Rights Reserved.
           </div>
           <div className="flex items-center space-x-4">
             <span className="flex items-center space-x-1 hover:text-slate-950 transition-colors cursor-pointer">

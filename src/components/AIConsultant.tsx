@@ -20,7 +20,7 @@ export default function AIConsultant() {
       {
         id: "initial-msg",
         role: "assistant",
-        content: "Hello! I am XcelBot, your dedicated WEBXcel AI Consultant. I'm here to help you brainstorm digital solutions and estimate project prices for your business. What services are you looking to develop today?",
+        content: "Hello! I am XcelBot, your dedicated WEBXcel Tech Solutions AI Consultant. I'm here to help you brainstorm digital solutions and estimate project prices for your business. What services are you looking to develop today?",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ];
@@ -175,7 +175,7 @@ export default function AIConsultant() {
                   <Bot className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-black stroke-[2.5]" />
                 </div>
                 <div>
-                  <span className="block text-xs sm:text-sm font-black uppercase tracking-tight text-slate-950 font-display">WEBXCEL AI ADVISOR</span>
+                  <span className="block text-xs sm:text-sm font-black uppercase tracking-tight text-slate-950 font-display">WEBXCEL TECH SOLUTIONS AI ADVISOR</span>
                   <span className="block text-[8px] sm:text-[9px] text-zinc-500 font-mono font-bold flex items-center">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping mr-1" />
                     AI Consultant · Active
